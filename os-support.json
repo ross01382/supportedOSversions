@@ -1,27 +1,36 @@
 {
+  "_last_updated": "2026-08-30T17:40:36.824794+00:00",
+  "_sources": {
+    "support": "https://endoflife.date",
+    "apple_history": "https://support.apple.com/en-us/100100"
+  },
   "macOS": {
     "supported": [
       {
         "version": "26",
         "latest": "26.6.2",
-        "eol": false
+        "eol": false,
+        "previous": "26.6.1"
       },
       {
         "version": "15",
         "latest": "15.7.9",
-        "eol": false
+        "eol": false,
+        "previous": "15.7.8"
       },
       {
         "version": "14",
         "latest": "14.8.9",
-        "eol": false
+        "eol": false,
+        "previous": "14.8.8"
       }
     ],
     "previous_unsupported": [
       {
         "version": "13",
         "latest": "13.7.8",
-        "eol": "2025-09-15"
+        "eol": "2025-09-15",
+        "previous": "13.7.7"
       }
     ]
   },
@@ -30,29 +39,34 @@
       {
         "version": "26",
         "latest": "26.6.1",
-        "eol": false
+        "eol": false,
+        "previous": "26.6"
       },
       {
         "version": "18",
         "latest": "18.7.10",
-        "eol": false
+        "eol": false,
+        "previous": "18.7.9"
       },
       {
         "version": "16",
         "latest": "16.7.16",
-        "eol": false
+        "eol": false,
+        "previous": "16.7.15"
       },
       {
         "version": "15",
         "latest": "15.8.8",
-        "eol": false
+        "eol": false,
+        "previous": "15.8.7"
       }
     ],
     "previous_unsupported": [
       {
         "version": "17",
         "latest": "17.7.7",
-        "eol": "2025-05-13"
+        "eol": "2025-05-13",
+        "previous": null
       }
     ]
   },
