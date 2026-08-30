@@ -1,121 +1,195 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Operating System Support</title>
-<style>
-:root{
-  --bg:#f5f7fb;--panel:#fff;--text:#172033;--muted:#687386;--border:#dfe5ee;
-  --ok:#137a45;--okbg:#e8f6ee;--bad:#9c2f2f;--badbg:#fdecec;--accent:#315efb;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
-.wrap{max-width:1180px;margin:auto;padding:32px 20px 56px}
-h1{margin:0 0 8px;font-size:clamp(28px,4vw,42px);letter-spacing:-.03em}
-.intro{margin:0 0 24px;color:var(--muted);line-height:1.5}
-.toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
-input{flex:1;min-width:240px;padding:11px 13px;border:1px solid var(--border);border-radius:10px;background:#fff;font-size:15px}
-button{border:0;border-radius:10px;background:var(--accent);color:#fff;padding:11px 15px;font-weight:700;cursor:pointer}
-.meta{color:var(--muted);font-size:13px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:0 2px 8px rgba(20,35,65,.04)}
-.card-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:12px}
-.title{font-size:20px;font-weight:800}
-.source{font-size:12px;color:var(--accent);text-decoration:none}
-.release{display:grid;grid-template-columns:1fr auto;gap:6px 12px;padding:10px 0;border-top:1px solid var(--border)}
-.release:first-of-type{border-top:0}
-.version{font-weight:800}
-.cycle{font-size:12px;color:var(--muted);margin-top:1px}
-.detail{font-size:13px;color:var(--muted)}
-.pill{align-self:start;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap}
-.ok{color:var(--ok);background:var(--okbg)}
-.bad{color:var(--bad);background:var(--badbg)}
-.empty{color:var(--muted);font-size:14px}
-footer{margin-top:24px;color:var(--muted);font-size:12px;line-height:1.55}
-@media(max-width:600px){.wrap{padding:22px 14px}.grid{grid-template-columns:1fr}}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <h1>Operating System Support</h1>
-  <p class="intro">Current supported releases plus one immediately preceding unsupported release.</p>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <div class="toolbar">
-    <input id="filter" type="search" placeholder="Filter operating systems or versions…">
-    <button id="refresh">Refresh</button>
-    <span class="meta" id="updated">Loading…</span>
+  <title>Operating System Support</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 40px 20px;
+      color: #222;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    th {
+      background: #222;
+      color: white;
+      text-align: left;
+      padding: 14px;
+    }
+
+    td {
+      padding: 14px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .unsupported {
+      color: #b42318;
+      font-weight: bold;
+    }
+
+    .loading {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #777;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>Operating System Support</h1>
+
+  <div class="subtitle">
+    Current supported operating system versions
   </div>
 
-  <main class="grid" id="grid"></main>
+  <table id="os-table">
 
-  <footer>
-    Lifecycle data is refreshed automatically by GitHub Actions. Apple point releases are enriched from Apple Security Releases;
-    Microsoft builds are enriched from Microsoft Release Health where available. Other lifecycle data is sourced from endoflife.date.
-  </footer>
+    <thead>
+      <tr>
+        <th>Operating System</th>
+        <th>Supported Versions</th>
+        <th>Previous Unsupported Version</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td colspan="3" class="loading">
+          Loading support information...
+        </td>
+      </tr>
+    </tbody>
+
+  </table>
+
+  <div class="footer">
+    Support information is automatically updated.
+  </div>
+
 </div>
 
+
 <script>
-let data = [];
 
-function esc(s=""){
-  return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-}
-function fmtDate(s){
-  if(!s) return "";
-  const d=new Date(s+"T00:00:00Z");
-  return isNaN(d)?s:new Intl.DateTimeFormat("en-GB",{day:"2-digit",month:"short",year:"numeric"}).format(d);
-}
-function render(){
-  const q=document.getElementById("filter").value.trim().toLowerCase();
-  const filtered=data.products.filter(p =>
-    p.name.toLowerCase().includes(q) ||
-    p.releases.some(r => `${r.version} ${r.cycle||""} ${r.build||""}`.toLowerCase().includes(q))
-  );
+async function loadOSSupport() {
 
-  document.getElementById("grid").innerHTML = filtered.map(p => `
-    <section class="card">
-      <div class="card-head">
-        <div class="title">${esc(p.name)}</div>
-        <a class="source" href="${esc(p.source)}" target="_blank" rel="noopener">Source ↗</a>
-      </div>
-      ${p.releases.map(r => `
-        <div class="release">
-          <div>
-            <div class="version">${esc(r.version || r.cycle)}</div>
-            ${r.version !== r.cycle && r.cycle ? `<div class="cycle">Release: ${esc(r.cycle)}</div>` : ""}
-            ${r.build ? `<div class="detail">Build: ${esc(r.build)}</div>` : ""}
-            <div class="detail">
-              ${r.status === "unsupported"
-                ? (r.eol ? `Support ended ${fmtDate(r.eol)}` : "No longer supported")
-                : (r.eol ? `Support ends ${fmtDate(r.eol)}` : "Currently supported")}
-            </div>
-          </div>
-          <span class="pill ${r.status==="unsupported"?"bad":"ok"}">
-            ${r.status==="unsupported"?"Unsupported":"Supported"}
-          </span>
-        </div>
-      `).join("")}
-    </section>
-  `).join("") || `<div class="empty">No matches.</div>`;
-}
+  try {
 
-async function load(){
-  try{
-    const res=await fetch(`os-data.json?ts=${Date.now()}`,{cache:"no-store"});
-    if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-    data=await res.json();
-    document.getElementById("updated").textContent =
-      `Data generated ${new Intl.DateTimeFormat("en-GB",{dateStyle:"medium",timeStyle:"short"}).format(new Date(data.generated_at))}`;
-    render();
-  }catch(e){
-    document.getElementById("grid").innerHTML=`<div class="empty">Could not load os-data.json: ${esc(e.message)}</div>`;
-    document.getElementById("updated").textContent="Data unavailable";
+    const response = await fetch("os-support.json");
+
+    if (!response.ok) {
+      throw new Error("Unable to load os-support.json");
+    }
+
+    const data = await response.json();
+
+
+    const order = [
+      "macOS",
+      "iOS",
+      "Android",
+      "Windows",
+      "Windows Server",
+      "Ubuntu",
+      "Red Hat Enterprise Linux"
+    ];
+
+
+    const tbody = document.querySelector("#os-table tbody");
+
+    tbody.innerHTML = "";
+
+
+    for (const os of order) {
+
+      const item = data[os];
+
+      if (!item) continue;
+
+
+      const supported = item.supported
+        .map(version => version.version)
+        .join(", ");
+
+
+      const previousUnsupported =
+        item.previous_unsupported?.[0]?.version || "—";
+
+
+      const row = document.createElement("tr");
+
+
+      row.innerHTML = `
+        <td><strong>${os}</strong></td>
+        <td>${supported || "—"}</td>
+        <td class="unsupported">${previousUnsupported}</td>
+      `;
+
+
+      tbody.appendChild(row);
+
+    }
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    document.querySelector("#os-table tbody").innerHTML = `
+      <tr>
+        <td colspan="3">
+          Unable to load operating system support information.
+        </td>
+      </tr>
+    `;
+
   }
+
 }
-document.getElementById("filter").addEventListener("input",render);
-document.getElementById("refresh").addEventListener("click",load);
-load();
+
+
+loadOSSupport();
+
 </script>
+
+
 </body>
 </html>
