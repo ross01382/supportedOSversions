@@ -101,7 +101,7 @@ def get_apple_release_history():
     # macOS Sonoma 14.8.9
 
     macos_matches = re.findall(
-        r"macOS\s+[A-Za-z][A-Za-z\s]*?\s+(\d+(?:\.\d+){1,2})",
+        r"macOS\s+[A-Za-z]+(?:\s+[A-Za-z]+)*\s+(\d+(?:\.\d+){1,2})",
         html,
         flags=re.IGNORECASE
     )
