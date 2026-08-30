@@ -1,12 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
   <title>Operating System Support</title>
 
+
   <style>
+
     body {
       font-family: Arial, sans-serif;
       background: #f5f5f5;
@@ -15,19 +21,23 @@
       color: #222;
     }
 
+
     .container {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: auto;
     }
+
 
     h1 {
       margin-bottom: 8px;
     }
 
+
     .subtitle {
       color: #666;
       margin-bottom: 30px;
     }
+
 
     table {
       width: 100%;
@@ -36,6 +46,7 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
+
     th {
       background: #222;
       color: white;
@@ -43,86 +54,262 @@
       padding: 14px;
     }
 
+
     td {
       padding: 14px;
       border-bottom: 1px solid #ddd;
+      vertical-align: top;
     }
+
 
     tr:last-child td {
       border-bottom: none;
     }
 
-    .unsupported {
-      color: #b42318;
-      font-weight: bold;
+
+    /*
+      Status dots
+    */
+
+    .status-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
     }
+
+
+    .supported-dot {
+      background-color: #16803c;
+    }
+
+
+    .unsupported-dot {
+      background-color: #b42318;
+    }
+
+
+    /*
+      Apple version pairs
+    */
+
+    .version-line {
+      margin-bottom: 5px;
+      white-space: nowrap;
+    }
+
+
+    .version-line:last-child {
+      margin-bottom: 0;
+    }
+
 
     .loading {
       padding: 20px;
       text-align: center;
     }
 
+
     .footer {
       margin-top: 20px;
       font-size: 13px;
       color: #777;
+      line-height: 1.6;
     }
+
+
+    .footer a {
+      color: #555;
+    }
+
+
   </style>
+
 </head>
+
+
 
 <body>
 
+
 <div class="container">
+
 
   <h1>Operating System Support</h1>
 
+
   <div class="subtitle">
+
     Current supported operating system versions
+
   </div>
+
+
 
   <table id="os-table">
 
+
     <thead>
+
       <tr>
-        <th>Operating System</th>
-        <th>Supported Versions</th>
-        <th>Previous Unsupported Version</th>
+
+        <th>
+          Operating System
+        </th>
+
+        <th>
+          Supported Versions
+        </th>
+
+        <th>
+          Previous Version
+        </th>
+
       </tr>
+
     </thead>
 
+
+
     <tbody>
+
       <tr>
-        <td colspan="3" class="loading">
+
+        <td colspan="3"
+            class="loading">
+
           Loading support information...
+
         </td>
+
       </tr>
+
     </tbody>
+
 
   </table>
 
+
+
   <div class="footer">
-  Source: <a href="https://endoflife.date" target="_blank">endoflife.date</a> — updated daily.
-</div>
+
+    Sources:
+
+    <a href="https://endoflife.date"
+       target="_blank"
+       rel="noopener noreferrer">
+
+      endoflife.date
+
+    </a>
+
+    and
+
+    <a href="https://support.apple.com/100100"
+       target="_blank"
+       rel="noopener noreferrer">
+
+      Apple Security Releases
+
+    </a>
+
+    — updated daily.
+
+    Last updated:
+
+    <span id="last-updated">
+      Loading...
+    </span>
+
+  </div>
+
 
 </div>
+
 
 
 <script>
 
+
 async function loadOSSupport() {
+
 
   try {
 
-    const response = await fetch("os-support.json");
+
+    const response =
+      await fetch("os-support.json");
+
 
     if (!response.ok) {
-      throw new Error("Unable to load os-support.json");
+
+      throw new Error(
+        "Unable to load os-support.json"
+      );
+
     }
 
-    const data = await response.json();
+
+    const data =
+      await response.json();
+
+
+
+    /*
+      Last updated time
+    */
+
+
+    if (data._last_updated) {
+
+
+      const updated =
+        new Date(data._last_updated);
+
+
+      const updatedDate =
+        updated.toLocaleDateString(
+          "en-GB"
+        );
+
+
+      const updatedTime =
+        updated.toLocaleTimeString(
+          "en-GB",
+          {
+            hour: "2-digit",
+            minute: "2-digit"
+          }
+        );
+
+
+      document
+        .getElementById("last-updated")
+        .textContent =
+          `${updatedDate} at ${updatedTime}`;
+
+
+    } else {
+
+
+      document
+        .getElementById("last-updated")
+        .textContent =
+          "Unknown";
+
+
+    }
+
+
+
+    /*
+      Display order
+    */
 
 
     const order = [
+
       "macOS",
       "iOS",
       "Android",
@@ -130,110 +317,370 @@ async function loadOSSupport() {
       "Windows Server",
       "Ubuntu",
       "Red Hat Enterprise Linux"
+
     ];
 
 
-    const tbody = document.querySelector("#os-table tbody");
+
+    const tbody =
+      document.querySelector(
+        "#os-table tbody"
+      );
+
 
     tbody.innerHTML = "";
 
 
+
     for (const os of order) {
 
+
       const item = data[os];
+
 
       if (!item) continue;
 
 
-let supported;
 
-if (os === "Windows") {
+      let supportedDisplay = "";
 
-  const versions = item.supported.map(version => {
-
-    const cycle = version.version;
-
-    // Windows 11 examples:
-    // 11-26h1-e
-    // 11-25h2-w
-    // 11-24h2-e-lts
-
-    let match = cycle.match(/^11-(\d+h\d)/i);
-
-    if (match) {
-      return `Windows 11 ${match[1].toUpperCase()}`;
-    }
-
-    // Windows 10 examples
-    match = cycle.match(/^10-(\d+h\d)/i);
-
-    if (match) {
-      return `Windows 10 ${match[1].toUpperCase()}`;
-    }
-
-    // Older Windows 10 releases such as 1809 / 1607
-    match = cycle.match(/^10-(\d{4})/);
-
-    if (match) {
-      return `Windows 10 ${match[1]}`;
-    }
-
-    return cycle;
-
-  });
-
-  // Remove duplicate editions/channels
-  supported = [...new Set(versions)].join(", ");
-
-} else {
-
-  supported = item.supported
-    .map(version => version.latest || version.version)
-    .join(", ");
-
-}
+      let previousDisplay = "";
 
 
-      const previousUnsupported =
-        item.previous_unsupported?.[0]?.version || "—";
+
+      /*
+        --------------------------------------
+        macOS and iOS
+        --------------------------------------
+
+        For Apple, display one line for every
+        supported major version.
+
+        Example:
+
+        GREEN 26.6.2
+        GREEN 15.7.9
+        GREEN 14.8.9
+
+        and:
+
+        RED 26.6.1
+        RED 15.7.8
+        RED 14.8.8
+      */
 
 
-      const row = document.createElement("tr");
+      if (
+        os === "macOS" ||
+        os === "iOS"
+      ) {
+
+
+        supportedDisplay =
+          item.supported
+            .map(version => {
+
+              const current =
+                version.latest ||
+                version.version;
+
+              return `
+                <div class="version-line">
+                  <span class="status-dot supported-dot"></span>
+                  ${current}
+                </div>
+              `;
+
+            })
+            .join("");
+
+
+
+        previousDisplay =
+          item.supported
+            .map(version => {
+
+              const previous =
+                version.previous || "—";
+
+              return `
+                <div class="version-line">
+                  <span class="status-dot unsupported-dot"></span>
+                  ${previous}
+                </div>
+              `;
+
+            })
+            .join("");
+
+
+      }
+
+
+
+      /*
+        --------------------------------------
+        Windows
+        --------------------------------------
+      */
+
+
+      else if (os === "Windows") {
+
+
+        const versions =
+          item.supported.map(
+            version => {
+
+
+              const cycle =
+                version.version;
+
+
+              /*
+                Windows 11
+              */
+
+
+              let match =
+                cycle.match(
+                  /^11-(\d+h\d)/i
+                );
+
+
+              if (match) {
+
+                return `Windows 11 ${match[1].toUpperCase()}`;
+
+              }
+
+
+
+              /*
+                Windows 10
+              */
+
+
+              match =
+                cycle.match(
+                  /^10-(\d+h\d)/i
+                );
+
+
+              if (match) {
+
+                return `Windows 10 ${match[1].toUpperCase()}`;
+
+              }
+
+
+
+              /*
+                Older Windows 10
+                releases such as
+                1809 or 1607
+              */
+
+
+              match =
+                cycle.match(
+                  /^10-(\d{4})/
+                );
+
+
+              if (match) {
+
+                return `Windows 10 ${match[1]}`;
+
+              }
+
+
+              return cycle;
+
+
+            }
+          );
+
+
+        const uniqueVersions =
+          [...new Set(versions)];
+
+
+        supportedDisplay = `
+
+          <span class="status-dot supported-dot"></span>
+
+          ${uniqueVersions.join(", ")}
+
+        `;
+
+
+
+        const previousUnsupported =
+          item
+            .previous_unsupported
+            ?.[0]
+            ?.version || "—";
+
+
+        previousDisplay = `
+
+          <span class="status-dot unsupported-dot"></span>
+
+          ${previousUnsupported}
+
+        `;
+
+
+      }
+
+
+
+      /*
+        --------------------------------------
+        All other operating systems
+        --------------------------------------
+      */
+
+
+      else {
+
+
+        const supported =
+          item.supported
+            .map(
+              version =>
+                version.latest ||
+                version.version
+            )
+            .join(", ");
+
+
+
+        const previousUnsupported =
+          item
+            .previous_unsupported
+            ?.[0]
+            ?.version || "—";
+
+
+
+        supportedDisplay = `
+
+          <span class="status-dot supported-dot"></span>
+
+          ${supported || "—"}
+
+        `;
+
+
+
+        previousDisplay = `
+
+          <span class="status-dot unsupported-dot"></span>
+
+          ${previousUnsupported}
+
+        `;
+
+
+      }
+
+
+
+      /*
+        Create row
+      */
+
+
+      const row =
+        document.createElement("tr");
+
 
 
       row.innerHTML = `
-        <td><strong>${os}</strong></td>
-        <td>${supported || "—"}</td>
-        <td class="unsupported">${previousUnsupported}</td>
+
+        <td>
+
+          <strong>
+            ${os}
+          </strong>
+
+        </td>
+
+
+        <td>
+
+          ${supportedDisplay}
+
+        </td>
+
+
+        <td>
+
+          ${previousDisplay}
+
+        </td>
+
       `;
+
 
 
       tbody.appendChild(row);
 
+
     }
 
 
-  } catch (error) {
+
+  }
+
+
+  catch (error) {
+
 
     console.error(error);
 
-    document.querySelector("#os-table tbody").innerHTML = `
-      <tr>
-        <td colspan="3">
-          Unable to load operating system support information.
-        </td>
-      </tr>
-    `;
+
+    document
+      .querySelector(
+        "#os-table tbody"
+      )
+      .innerHTML = `
+
+        <tr>
+
+          <td colspan="3">
+
+            Unable to load operating system
+            support information.
+
+          </td>
+
+        </tr>
+
+      `;
+
+
+    document
+      .getElementById("last-updated")
+      .textContent =
+        "Unavailable";
+
 
   }
+
 
 }
 
 
+
 loadOSSupport();
+
 
 </script>
 
 
 </body>
+
 </html>
