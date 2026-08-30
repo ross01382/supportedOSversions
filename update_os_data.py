@@ -27,7 +27,7 @@ def download_text(url):
     )
 
     with urllib.request.urlopen(request, timeout=30) as response:
-        return response.read().decode("utf-8")
+        return response.read().decode("utf-8", errors="ignore")
 
 
 def get_eol_data(product):
@@ -51,13 +51,6 @@ def is_supported(item):
 
 
 def version_major(version):
-    """
-    Convert:
-      26.6.2 -> 26
-      15.7.9 -> 15
-      18.7.10 -> 18
-    """
-
     if not version:
         return None
 
@@ -70,14 +63,6 @@ def version_major(version):
 
 
 def version_tuple(version):
-    """
-    Makes versions sortable numerically.
-
-    Example:
-      26.6.2 -> (26, 6, 2)
-      26.6   -> (26, 6)
-    """
-
     try:
         return tuple(int(part) for part in version.split("."))
     except Exception:
@@ -85,45 +70,37 @@ def version_tuple(version):
 
 
 def get_apple_release_history():
-    """
-    Downloads Apple's security release page and extracts
-    macOS and iOS version numbers.
-    """
 
     html = download_text(APPLE_SECURITY_URL)
 
-    macos_versions = []
-    ios_versions = []
+    # Remove HTML tags so we are matching visible text
+    text = re.sub(r"<[^>]+>", " ", html)
 
-    # macOS examples:
-    # macOS Tahoe 26.6.2
-    # macOS Sequoia 15.7.9
-    # macOS Sonoma 14.8.9
+    # Decode a few common HTML entities
+    text = (
+        text.replace("&nbsp;", " ")
+            .replace("&#x27;", "'")
+            .replace("&amp;", "&")
+    )
 
-    macos_matches = re.findall(
-        r"macOS\s+[A-Za-z]+(?:\s+[A-Za-z]+)*\s+(\d+(?:\.\d+){1,2})",
-        html,
+    macos_versions = re.findall(
+        r"macOS\s+[A-Za-z]+\s+(\d+(?:\.\d+){1,2})",
+        text,
         flags=re.IGNORECASE
     )
 
-    # iOS examples:
-    # iOS 26.6.1
-    # iOS 18.7.10
-    # iOS 16.7.16
-
-    ios_matches = re.findall(
+    ios_versions = re.findall(
         r"\biOS\s+(\d+(?:\.\d+){1,2})",
-        html,
+        text,
         flags=re.IGNORECASE
     )
 
-    for version in macos_matches:
-        if version not in macos_versions:
-            macos_versions.append(version)
+    # Remove duplicates but preserve order
+    macos_versions = list(dict.fromkeys(macos_versions))
+    ios_versions = list(dict.fromkeys(ios_versions))
 
-    for version in ios_matches:
-        if version not in ios_versions:
-            ios_versions.append(version)
+    print("Apple macOS versions found:", macos_versions[:20])
+    print("Apple iOS versions found:", ios_versions[:20])
 
     return {
         "macOS": macos_versions,
@@ -132,22 +109,6 @@ def get_apple_release_history():
 
 
 def find_previous_apple_version(current_version, history):
-    """
-    Find the immediately previous Apple release
-    within the same major version.
-
-    Example:
-
-      current = 15.7.9
-
-      history contains:
-        15.7.9
-        15.7.8
-        15.7.7
-
-      result:
-        15.7.8
-    """
 
     if not current_version:
         return None
@@ -166,6 +127,11 @@ def find_previous_apple_version(current_version, history):
         reverse=True
     )
 
+    print(
+        f"Looking for previous version of {current_version}. "
+        f"Candidates: {same_major[:10]}"
+    )
+
     try:
         current_index = same_major.index(current_version)
     except ValueError:
@@ -177,23 +143,17 @@ def find_previous_apple_version(current_version, history):
     return None
 
 
-# ---------------------------------------------------------
-# Get Apple release history
-# ---------------------------------------------------------
-
 print("Checking Apple security releases...")
 
 try:
-    apple_history = get_apple_release_history()
 
-    print(
-        f"Found {len(apple_history['macOS'])} macOS releases "
-        f"and {len(apple_history['iOS'])} iOS releases."
-    )
+    apple_history = get_apple_release_history()
 
 except Exception as error:
 
-    print(f"Warning: Unable to read Apple security releases: {error}")
+    print(
+        f"Warning: Unable to read Apple security releases: {error}"
+    )
 
     apple_history = {
         "macOS": [],
@@ -201,12 +161,9 @@ except Exception as error:
     }
 
 
-# ---------------------------------------------------------
-# Build output
-# ---------------------------------------------------------
-
 result = {
     "_last_updated": datetime.now(timezone.utc).isoformat(),
+
     "_sources": {
         "support": "https://endoflife.date",
         "apple_history": APPLE_SECURITY_URL,
@@ -235,11 +192,6 @@ for display_name, product in PRODUCTS.items():
         }
 
 
-        # -------------------------------------------------
-        # For Apple products, find the previous release
-        # in the same major version.
-        # -------------------------------------------------
-
         if display_name in ("macOS", "iOS"):
 
             previous = find_previous_apple_version(
@@ -252,6 +204,7 @@ for display_name, product in PRODUCTS.items():
 
         if is_supported(release):
             supported.append(entry)
+
         else:
             unsupported.append(entry)
 
@@ -262,11 +215,11 @@ for display_name, product in PRODUCTS.items():
     }
 
 
-# ---------------------------------------------------------
-# Write JSON
-# ---------------------------------------------------------
-
-with open("os-support.json", "w", encoding="utf-8") as file:
+with open(
+    "os-support.json",
+    "w",
+    encoding="utf-8"
+) as file:
 
     json.dump(
         result,
