@@ -1,0 +1,249 @@
+{
+  "macOS": {
+    "supported": [
+      {
+        "version": "26",
+        "latest": "26.6.2",
+        "eol": false
+      },
+      {
+        "version": "15",
+        "latest": "15.7.9",
+        "eol": false
+      },
+      {
+        "version": "14",
+        "latest": "14.8.9",
+        "eol": false
+      }
+    ],
+    "previous_unsupported": [
+      {
+        "version": "13",
+        "latest": "13.7.8",
+        "eol": "2025-09-15"
+      }
+    ]
+  },
+  "iOS": {
+    "supported": [
+      {
+        "version": "26",
+        "latest": "26.6.1",
+        "eol": false
+      },
+      {
+        "version": "18",
+        "latest": "18.7.10",
+        "eol": false
+      },
+      {
+        "version": "16",
+        "latest": "16.7.16",
+        "eol": false
+      },
+      {
+        "version": "15",
+        "latest": "15.8.8",
+        "eol": false
+      }
+    ],
+    "previous_unsupported": [
+      {
+        "version": "17",
+        "latest": "17.7.7",
+        "eol": "2025-05-13"
+      }
+    ]
+  },
+  "Android": {
+    "supported": [
+      {
+        "version": "17",
+        "latest": null,
+        "eol": false
+      },
+      {
+        "version": "16",
+        "latest": null,
+        "eol": false
+      },
+      {
+        "version": "15",
+        "latest": null,
+        "eol": false
+      },
+      {
+        "version": "14",
+        "latest": null,
+        "eol": false
+      }
+    ],
+    "previous_unsupported": [
+      {
+        "version": "13",
+        "latest": null,
+        "eol": "2026-03-02"
+      }
+    ]
+  },
+  "Windows": {
+    "supported": [
+      {
+        "version": "11-26h1-e",
+        "latest": "10.0.28000",
+        "eol": "2029-03-13"
+      },
+      {
+        "version": "11-26h1-w",
+        "latest": "10.0.28000",
+        "eol": "2028-03-14"
+      },
+      {
+        "version": "11-25h2-e",
+        "latest": "10.0.26200",
+        "eol": "2028-10-10"
+      },
+      {
+        "version": "11-25h2-w",
+        "latest": "10.0.26200",
+        "eol": "2027-10-12"
+      },
+      {
+        "version": "11-24h2-iot-lts",
+        "latest": "10.0.26100",
+        "eol": "2034-10-10"
+      },
+      {
+        "version": "11-24h2-e-lts",
+        "latest": "10.0.26100",
+        "eol": "2029-10-09"
+      },
+      {
+        "version": "11-24h2-e",
+        "latest": "10.0.26100",
+        "eol": "2027-10-12"
+      },
+      {
+        "version": "11-24h2-w",
+        "latest": "10.0.26100",
+        "eol": "2026-10-13"
+      },
+      {
+        "version": "11-23h2-e",
+        "latest": "10.0.22631",
+        "eol": "2026-11-10"
+      },
+      {
+        "version": "10-21h2-iot-lts",
+        "latest": "10.0.19044",
+        "eol": "2032-01-13"
+      },
+      {
+        "version": "10-21h2-e-lts",
+        "latest": "10.0.19044",
+        "eol": "2027-01-12"
+      },
+      {
+        "version": "10-1809-e-lts",
+        "latest": "10.0.17763",
+        "eol": "2029-01-09"
+      },
+      {
+        "version": "10-1607-e-lts",
+        "latest": "10.0.14393",
+        "eol": "2026-10-13"
+      }
+    ],
+    "previous_unsupported": [
+      {
+        "version": "11-23h2-w",
+        "latest": "10.0.22631",
+        "eol": "2025-11-11"
+      }
+    ]
+  },
+  "Windows Server": {
+    "supported": [
+      {
+        "version": "2025",
+        "latest": "10.0.26100",
+        "eol": "2034-11-14"
+      },
+      {
+        "version": "2022",
+        "latest": "10.0.20348",
+        "eol": "2031-10-14"
+      },
+      {
+        "version": "2019",
+        "latest": "10.0.17763",
+        "eol": "2029-01-09"
+      },
+      {
+        "version": "2016",
+        "latest": "10.0.14393",
+        "eol": "2027-01-12"
+      }
+    ],
+    "previous_unsupported": [
+      {
+        "version": "23h2-ac",
+        "latest": "10.0.25398",
+        "eol": "2026-05-12"
+      }
+    ]
+  },
+  "Ubuntu": {
+    "supported": [
+      {
+        "version": "26.04",
+        "latest": "26.04.1",
+        "eol": "2031-05-29"
+      },
+      {
+        "version": "24.04",
+        "latest": "24.04.4",
+        "eol": "2029-05-31"
+      },
+      {
+        "version": "22.04",
+        "latest": "22.04.5",
+        "eol": "2027-06-01"
+      }
+    ],
+    "previous_unsupported": [
+      {
+        "version": "25.10",
+        "latest": "25.10",
+        "eol": "2026-07-01"
+      }
+    ]
+  },
+  "Red Hat Enterprise Linux": {
+    "supported": [
+      {
+        "version": "10",
+        "latest": "10.2",
+        "eol": "2035-05-31"
+      },
+      {
+        "version": "9",
+        "latest": "9.8",
+        "eol": "2032-05-31"
+      },
+      {
+        "version": "8",
+        "latest": "8.10",
+        "eol": "2029-05-31"
+      }
+    ],
+    "previous_unsupported": [
+      {
+        "version": "7",
+        "latest": "7.9",
+        "eol": "2024-06-30"
+      }
+    ]
+  }
+}
