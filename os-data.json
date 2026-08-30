@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-08-30T12:00:00+00:00",
+  "products": [
+    {
+      "id": "macos",
+      "name": "macOS",
+      "source": "https://support.apple.com/en-us/100100",
+      "enriched_from": "Apple Security Releases",
+      "releases": [
+        {
+          "cycle": "26",
+          "version": "26.6.2",
+          "build": null,
+          "status": "supported",
+          "eol": null
+        },
+        {
+          "cycle": "15",
+          "version": "15.7.9",
+          "build": null,
+          "status": "supported",
+          "eol": null
+        },
+        {
+          "cycle": "14",
+          "version": "14.8.9",
+          "build": null,
+          "status": "supported",
+          "eol": null
+        },
+        {
+          "cycle": "13",
+          "version": "13.7.8",
+          "build": null,
+          "status": "unsupported",
+          "eol": "2025-09-15"
+        }
+      ]
+    }
+  ]
+}
