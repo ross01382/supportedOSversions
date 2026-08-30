@@ -145,9 +145,53 @@ async function loadOSSupport() {
       if (!item) continue;
 
 
-const supported = item.supported
-  .map(version => version.latest || version.version)
-  .join(", ");
+let supported;
+
+if (os === "Windows") {
+
+  const versions = item.supported.map(version => {
+
+    const cycle = version.version;
+
+    // Windows 11 examples:
+    // 11-26h1-e
+    // 11-25h2-w
+    // 11-24h2-e-lts
+
+    let match = cycle.match(/^11-(\d+h\d)/i);
+
+    if (match) {
+      return `Windows 11 ${match[1].toUpperCase()}`;
+    }
+
+    // Windows 10 examples
+    match = cycle.match(/^10-(\d+h\d)/i);
+
+    if (match) {
+      return `Windows 10 ${match[1].toUpperCase()}`;
+    }
+
+    // Older Windows 10 releases such as 1809 / 1607
+    match = cycle.match(/^10-(\d{4})/);
+
+    if (match) {
+      return `Windows 10 ${match[1]}`;
+    }
+
+    return cycle;
+
+  });
+
+  // Remove duplicate editions/channels
+  supported = [...new Set(versions)].join(", ");
+
+} else {
+
+  supported = item.supported
+    .map(version => version.latest || version.version)
+    .join(", ");
+
+}
 
 
       const previousUnsupported =
