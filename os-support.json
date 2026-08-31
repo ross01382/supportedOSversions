@@ -1,5 +1,5 @@
 {
-  "_last_updated": "2026-08-31T06:00:56.416739+00:00",
+  "_last_updated": "2026-08-31T08:54:44.160582+00:00",
   "_sources": {
     "support": "https://endoflife.date",
     "apple_history": "https://support.apple.com/en-us/100100"
@@ -102,80 +102,8 @@
     ]
   },
   "Windows": {
-    "supported": [
-      {
-        "version": "11-26h1-e",
-        "latest": "10.0.28000",
-        "eol": "2029-03-13"
-      },
-      {
-        "version": "11-26h1-w",
-        "latest": "10.0.28000",
-        "eol": "2028-03-14"
-      },
-      {
-        "version": "11-25h2-e",
-        "latest": "10.0.26200",
-        "eol": "2028-10-10"
-      },
-      {
-        "version": "11-25h2-w",
-        "latest": "10.0.26200",
-        "eol": "2027-10-12"
-      },
-      {
-        "version": "11-24h2-iot-lts",
-        "latest": "10.0.26100",
-        "eol": "2034-10-10"
-      },
-      {
-        "version": "11-24h2-e-lts",
-        "latest": "10.0.26100",
-        "eol": "2029-10-09"
-      },
-      {
-        "version": "11-24h2-e",
-        "latest": "10.0.26100",
-        "eol": "2027-10-12"
-      },
-      {
-        "version": "11-24h2-w",
-        "latest": "10.0.26100",
-        "eol": "2026-10-13"
-      },
-      {
-        "version": "11-23h2-e",
-        "latest": "10.0.22631",
-        "eol": "2026-11-10"
-      },
-      {
-        "version": "10-21h2-iot-lts",
-        "latest": "10.0.19044",
-        "eol": "2032-01-13"
-      },
-      {
-        "version": "10-21h2-e-lts",
-        "latest": "10.0.19044",
-        "eol": "2027-01-12"
-      },
-      {
-        "version": "10-1809-e-lts",
-        "latest": "10.0.17763",
-        "eol": "2029-01-09"
-      },
-      {
-        "version": "10-1607-e-lts",
-        "latest": "10.0.14393",
-        "eol": "2026-10-13"
-      }
-    ],
-    "previous_unsupported": [
-      {
-        "version": "11-23h2-w",
-        "latest": "10.0.22631",
-        "eol": "2025-11-11"
-      }
-    ]
+    "supported": [],
+    "previous_unsupported": []
   },
   "Windows Server": {
     "supported": [
