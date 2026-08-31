@@ -506,8 +506,27 @@ function createRow(
     version.className =
         "version";
 
+/*
+    Apple:
+    show the current supported minor/security release
+    rather than only the major version.
+*/
+
+if (
+    (
+        operatingSystem === "macOS"
+        ||
+        operatingSystem === "iOS"
+    )
+    &&
+    supported
+) {
+    version.textContent =
+        item.latest ?? item.version ?? "";
+} else {
     version.textContent =
         item.version ?? "";
+}
 
     const latest =
         document.createElement(
