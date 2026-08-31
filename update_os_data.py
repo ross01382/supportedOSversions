@@ -64,23 +64,95 @@ def version_major(version):
 
 def version_tuple(version):
     try:
-        return tuple(int(part) for part in version.split("."))
+        return tuple(
+            int(part)
+            for part in str(version).split(".")
+        )
     except Exception:
         return tuple()
 
 
+def windows_sort_key(entry):
+    version = str(entry.get("version", ""))
+
+    match = re.match(
+        r"^(\d{2})H([12])$",
+        version
+    )
+
+    if match:
+        year = int(match.group(1))
+        half = int(match.group(2))
+
+        return year, half
+
+    return 0, 0
+
+
+def clean_windows_releases(releases):
+    """
+    Keep only normal Windows feature releases
+    such as 25H2, 24H2, 23H2 etc.
+
+    This removes duplicate / edition-specific
+    entries that make the dashboard messy.
+    """
+
+    cleaned = []
+    seen_cycles = set()
+
+    for release in releases:
+
+        cycle = str(
+            release.get("cycle", "")
+        ).strip()
+
+        if not re.match(
+            r"^\d{2}H[12]$",
+            cycle
+        ):
+            continue
+
+        if cycle in seen_cycles:
+            continue
+
+        seen_cycles.add(cycle)
+        cleaned.append(release)
+
+    cleaned.sort(
+        key=lambda release:
+            windows_sort_key(
+                {
+                    "version":
+                        release.get("cycle")
+                }
+            ),
+        reverse=True
+    )
+
+    return cleaned
+
+
 def get_apple_release_history():
 
-    html = download_text(APPLE_SECURITY_URL)
+    html = download_text(
+        APPLE_SECURITY_URL
+    )
 
-    # Remove HTML tags so we are matching visible text
-    text = re.sub(r"<[^>]+>", " ", html)
+    # Remove HTML tags so we are matching
+    # visible text rather than page markup
+    text = re.sub(
+        r"<[^>]+>",
+        " ",
+        html
+    )
 
-    # Decode a few common HTML entities
+    # Decode common HTML entities
     text = (
-        text.replace("&nbsp;", " ")
-            .replace("&#x27;", "'")
-            .replace("&amp;", "&")
+        text
+        .replace("&nbsp;", " ")
+        .replace("&#x27;", "'")
+        .replace("&amp;", "&")
     )
 
     macos_versions = re.findall(
@@ -95,12 +167,28 @@ def get_apple_release_history():
         flags=re.IGNORECASE
     )
 
-    # Remove duplicates but preserve order
-    macos_versions = list(dict.fromkeys(macos_versions))
-    ios_versions = list(dict.fromkeys(ios_versions))
+    # Remove duplicates while preserving order
+    macos_versions = list(
+        dict.fromkeys(
+            macos_versions
+        )
+    )
 
-    print("Apple macOS versions found:", macos_versions[:20])
-    print("Apple iOS versions found:", ios_versions[:20])
+    ios_versions = list(
+        dict.fromkeys(
+            ios_versions
+        )
+    )
+
+    print(
+        "Apple macOS versions found:",
+        macos_versions[:20]
+    )
+
+    print(
+        "Apple iOS versions found:",
+        ios_versions[:20]
+    )
 
     return {
         "macOS": macos_versions,
@@ -108,12 +196,17 @@ def get_apple_release_history():
     }
 
 
-def find_previous_apple_version(current_version, history):
+def find_previous_apple_version(
+    current_version,
+    history
+):
 
     if not current_version:
         return None
 
-    major = version_major(current_version)
+    major = version_major(
+        current_version
+    )
 
     same_major = [
         version
@@ -128,31 +221,43 @@ def find_previous_apple_version(current_version, history):
     )
 
     print(
-        f"Looking for previous version of {current_version}. "
+        f"Looking for previous version "
+        f"of {current_version}. "
         f"Candidates: {same_major[:10]}"
     )
 
     try:
-        current_index = same_major.index(current_version)
+        current_index = same_major.index(
+            current_version
+        )
     except ValueError:
         return None
 
-    if current_index + 1 < len(same_major):
-        return same_major[current_index + 1]
+    if current_index + 1 < len(
+        same_major
+    ):
+        return same_major[
+            current_index + 1
+        ]
 
     return None
 
 
-print("Checking Apple security releases...")
+print(
+    "Checking Apple security releases..."
+)
 
 try:
 
-    apple_history = get_apple_release_history()
+    apple_history = (
+        get_apple_release_history()
+    )
 
 except Exception as error:
 
     print(
-        f"Warning: Unable to read Apple security releases: {error}"
+        "Warning: Unable to read "
+        f"Apple security releases: {error}"
     )
 
     apple_history = {
@@ -162,20 +267,58 @@ except Exception as error:
 
 
 result = {
-    "_last_updated": datetime.now(timezone.utc).isoformat(),
+    "_last_updated":
+        datetime.now(
+            timezone.utc
+        ).isoformat(),
 
     "_sources": {
-        "support": "https://endoflife.date",
-        "apple_history": APPLE_SECURITY_URL,
+        "support":
+            "https://endoflife.date",
+
+        "apple_history":
+            APPLE_SECURITY_URL,
     }
 }
 
 
 for display_name, product in PRODUCTS.items():
 
-    print(f"Checking {display_name}...")
+    print(
+        f"Checking {display_name}..."
+    )
 
-    releases = get_eol_data(product)
+    try:
+
+        releases = get_eol_data(
+            product
+        )
+
+    except Exception as error:
+
+        print(
+            f"Warning: Unable to get "
+            f"{display_name}: {error}"
+        )
+
+        result[display_name] = {
+            "supported": [],
+            "previous_unsupported": [],
+        }
+
+        continue
+
+
+    #
+    # Windows cleanup
+    #
+
+    if display_name == "Windows":
+
+        releases = clean_windows_releases(
+            releases
+        )
+
 
     supported = []
     unsupported = []
@@ -183,35 +326,81 @@ for display_name, product in PRODUCTS.items():
 
     for release in releases:
 
-        latest = release.get("latest")
+        latest = release.get(
+            "latest"
+        )
 
         entry = {
-            "version": release.get("cycle"),
-            "latest": latest,
-            "eol": release.get("eol"),
+            "version":
+                release.get("cycle"),
+
+            "latest":
+                latest,
+
+            "eol":
+                release.get("eol"),
         }
 
 
-        if display_name in ("macOS", "iOS"):
+        #
+        # Apple previous minor version
+        #
 
-            previous = find_previous_apple_version(
-                latest,
-                apple_history[display_name]
+        if display_name in (
+            "macOS",
+            "iOS"
+        ):
+
+            previous = (
+                find_previous_apple_version(
+                    latest,
+                    apple_history[
+                        display_name
+                    ]
+                )
             )
 
-            entry["previous"] = previous
+            entry["previous"] = (
+                previous
+            )
 
 
         if is_supported(release):
-            supported.append(entry)
+
+            supported.append(
+                entry
+            )
 
         else:
-            unsupported.append(entry)
+
+            unsupported.append(
+                entry
+            )
+
+
+    #
+    # Sort Windows releases
+    #
+
+    if display_name == "Windows":
+
+        supported.sort(
+            key=windows_sort_key,
+            reverse=True
+        )
+
+        unsupported.sort(
+            key=windows_sort_key,
+            reverse=True
+        )
 
 
     result[display_name] = {
-        "supported": supported,
-        "previous_unsupported": unsupported[:1],
+        "supported":
+            supported,
+
+        "previous_unsupported":
+            unsupported[:1],
     }
 
 
@@ -229,4 +418,6 @@ with open(
     )
 
 
-print("OS support data updated.")
+print(
+    "OS support data updated."
+)
