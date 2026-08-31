@@ -15,21 +15,42 @@ PRODUCTS = {
 }
 
 
-EOL_API = "https://endoflife.date/api/{product}.json"
+EOL_API = (
+    "https://endoflife.date/api/{product}.json"
+)
 
-APPLE_SECURITY_URL = "https://support.apple.com/en-us/100100"
+APPLE_SECURITY_URL = (
+    "https://support.apple.com/en-us/100100"
+)
 
+CHROME_VERSION_URL = (
+    "https://versionhistory.googleapis.com/"
+    "v1/chrome/platforms/win/channels/stable/versions"
+)
 
-# ----------------------------------------------------------
-# Download helper
-# ----------------------------------------------------------
+EDGE_VERSION_URL = (
+    "https://edgeupdates.microsoft.com/"
+    "api/products?view=enterprise"
+)
+
+FIREFOX_VERSION_URL = (
+    "https://product-details.mozilla.org/"
+    "1.0/firefox_versions.json"
+)
+
+FIREFOX_HISTORY_URL = (
+    "https://product-details.mozilla.org/"
+    "1.0/firefox_history_stability_releases.json"
+)
+
 
 def download_text(url):
 
     request = urllib.request.Request(
         url,
         headers={
-            "User-Agent": "Mozilla/5.0"
+            "User-Agent":
+                "Mozilla/5.0 OS-Support-Dashboard"
         }
     )
 
@@ -44,9 +65,14 @@ def download_text(url):
         )
 
 
-# ----------------------------------------------------------
-# Get endoflife.date data
-# ----------------------------------------------------------
+def download_json(url):
+
+    return json.loads(
+        download_text(
+            url
+        )
+    )
+
 
 def get_eol_data(product):
 
@@ -54,94 +80,160 @@ def get_eol_data(product):
         product=product
     )
 
-    return json.loads(
-        download_text(url)
+    return download_json(
+        url
     )
 
 
-# ----------------------------------------------------------
-# Is release supported?
-# ----------------------------------------------------------
-
 def is_supported(item):
 
-    eol = item.get("eol")
+    eol = item.get(
+        "eol"
+    )
 
-    if eol is False or eol is None:
+    if (
+        eol is False
+        or
+        eol is None
+    ):
+
         return True
 
-    if isinstance(eol, str):
+
+    if isinstance(
+        eol,
+        str
+    ):
 
         try:
 
             return (
-                date.fromisoformat(eol)
-                >= date.today()
+                date.fromisoformat(
+                    eol
+                )
+                >=
+                date.today()
             )
 
         except ValueError:
 
             return False
 
+
     return False
 
-
-# ----------------------------------------------------------
-# Version helpers
-# ----------------------------------------------------------
 
 def version_major(version):
 
     if not version:
+
         return None
+
 
     match = re.match(
         r"^(\d+)",
         str(version)
     )
 
+
     if match:
-        return match.group(1)
+
+        return int(
+            match.group(1)
+        )
+
 
     return None
 
 
 def version_tuple(version):
 
-    try:
-
-        return tuple(
-            int(part)
-            for part in version.split(".")
-        )
-
-    except Exception:
+    if not version:
 
         return tuple()
 
 
-# ----------------------------------------------------------
-# Apple release history
-# ----------------------------------------------------------
+    numbers = re.findall(
+        r"\d+",
+        str(version)
+    )
 
-def get_apple_release_history():
 
-    html = download_text(
-        APPLE_SECURITY_URL
+    return tuple(
+        int(number)
+        for number in numbers
+    )
+
+
+def clean_html_text(html):
+
+    text = re.sub(
+        r"<script.*?</script>",
+        " ",
+        html,
+        flags=(
+            re.IGNORECASE
+            |
+            re.DOTALL
+        )
+    )
+
+    text = re.sub(
+        r"<style.*?</style>",
+        " ",
+        text,
+        flags=(
+            re.IGNORECASE
+            |
+            re.DOTALL
+        )
     )
 
     text = re.sub(
         r"<[^>]+>",
         " ",
-        html
+        text
     )
 
     text = (
         text
-        .replace("&nbsp;", " ")
-        .replace("&#x27;", "'")
-        .replace("&amp;", "&")
+        .replace(
+            "&nbsp;",
+            " "
+        )
+        .replace(
+            "&#x27;",
+            "'"
+        )
+        .replace(
+            "&amp;",
+            "&"
+        )
     )
+
+    text = re.sub(
+        r"\s+",
+        " ",
+        text
+    )
+
+    return text
+
+
+def get_apple_release_history():
+
+    print(
+        "Checking Apple security releases..."
+    )
+
+    html = download_text(
+        APPLE_SECURITY_URL
+    )
+
+    text = clean_html_text(
+        html
+    )
+
 
     macos_versions = re.findall(
         r"macOS\s+[A-Za-z]+\s+"
@@ -150,12 +242,22 @@ def get_apple_release_history():
         flags=re.IGNORECASE
     )
 
+
     ios_versions = re.findall(
         r"\biOS\s+"
         r"(\d+(?:\.\d+){1,2})",
         text,
         flags=re.IGNORECASE
     )
+
+
+    safari_versions = re.findall(
+        r"\bSafari\s+"
+        r"(\d+(?:\.\d+){0,2})",
+        text,
+        flags=re.IGNORECASE
+    )
+
 
     macos_versions = list(
         dict.fromkeys(
@@ -169,6 +271,13 @@ def get_apple_release_history():
         )
     )
 
+    safari_versions = list(
+        dict.fromkeys(
+            safari_versions
+        )
+    )
+
+
     print(
         "Apple macOS versions found:",
         macos_versions[:20]
@@ -179,43 +288,68 @@ def get_apple_release_history():
         ios_versions[:20]
     )
 
+    print(
+        "Apple Safari versions found:",
+        safari_versions[:20]
+    )
+
+
     return {
-        "macOS": macos_versions,
-        "iOS": ios_versions,
+        "macOS":
+            macos_versions,
+
+        "iOS":
+            ios_versions,
+
+        "Safari":
+            safari_versions,
     }
 
 
-# ----------------------------------------------------------
-# Previous Apple minor/security release
-# ----------------------------------------------------------
-
-def find_previous_apple_version(
+def find_previous_same_major(
     current_version,
     history
 ):
 
     if not current_version:
+
         return None
+
 
     major = version_major(
         current_version
     )
 
-    same_major = [
+
+    candidates = [
+
         version
-        for version in history
-        if version_major(version) == major
+
+        for version
+        in history
+
+        if (
+            version_major(
+                version
+            )
+            ==
+            major
+        )
     ]
 
-    same_major = sorted(
-        set(same_major),
+
+    candidates = sorted(
+        set(
+            candidates
+        ),
         key=version_tuple,
         reverse=True
     )
 
+
     try:
 
-        current_index = same_major.index(
+        current_index = candidates.index(
             current_version
         )
 
@@ -223,370 +357,404 @@ def find_previous_apple_version(
 
         return None
 
-    if current_index + 1 < len(same_major):
 
-        return same_major[
+    if (
+        current_index + 1
+        <
+        len(
+            candidates
+        )
+    ):
+
+        return candidates[
             current_index + 1
         ]
+
 
     return None
 
 
-# ----------------------------------------------------------
-# Windows helper
-# ----------------------------------------------------------
+def get_previous_major_release(
+    versions,
+    current_version
+):
 
-def windows_version_number(cycle):
-
-    match = re.search(
-        r"-(\d+h\d+|\d{4})",
-        cycle,
-        flags=re.IGNORECASE
+    current_major = version_major(
+        current_version
     )
 
-    if not match:
+
+    if current_major is None:
+
         return None
 
-    return match.group(1).upper()
+
+    previous_major = (
+        current_major
+        -
+        1
+    )
 
 
-def get_windows_entries(releases):
+    candidates = [
 
-    supported_by_name = {}
-    unsupported = []
+        version
 
-    for release in releases:
+        for version
+        in versions
 
-        cycle = str(
-            release.get(
-                "cycle",
+        if (
+            version_major(
+                version
+            )
+            ==
+            previous_major
+        )
+    ]
+
+
+    if not candidates:
+
+        return None
+
+
+    return max(
+        candidates,
+        key=version_tuple
+    )
+
+
+# -------------------------------------------------
+# Chrome
+# -------------------------------------------------
+
+def get_chrome_data():
+
+    print(
+        "Checking Google Chrome..."
+    )
+
+
+    data = download_json(
+        CHROME_VERSION_URL
+    )
+
+
+    versions = [
+
+        item.get(
+            "version"
+        )
+
+        for item
+        in data.get(
+            "versions",
+            []
+        )
+
+        if item.get(
+            "version"
+        )
+    ]
+
+
+    versions = sorted(
+        set(
+            versions
+        ),
+        key=version_tuple,
+        reverse=True
+    )
+
+
+    if not versions:
+
+        raise RuntimeError(
+            "No Chrome Stable versions found"
+        )
+
+
+    current = versions[0]
+
+
+    previous = get_previous_major_release(
+        versions,
+        current
+    )
+
+
+    return {
+        "supported": [
+            {
+                "version":
+                    current
+            }
+        ],
+
+        "unsupported": (
+            [
+                {
+                    "version":
+                        previous
+                }
+            ]
+            if previous
+            else []
+        )
+    }
+
+
+# -------------------------------------------------
+# Firefox
+# -------------------------------------------------
+
+def get_firefox_data():
+
+    print(
+        "Checking Mozilla Firefox..."
+    )
+
+
+    versions_data = download_json(
+        FIREFOX_VERSION_URL
+    )
+
+
+    current = versions_data.get(
+        "LATEST_FIREFOX_VERSION"
+    )
+
+
+    if not current:
+
+        raise RuntimeError(
+            "LATEST_FIREFOX_VERSION not found"
+        )
+
+
+    history_data = download_json(
+        FIREFOX_HISTORY_URL
+    )
+
+
+    history = list(
+        history_data.keys()
+    )
+
+
+    previous = get_previous_major_release(
+        history,
+        current
+    )
+
+
+    return {
+        "supported": [
+            {
+                "version":
+                    current
+            }
+        ],
+
+        "unsupported": (
+            [
+                {
+                    "version":
+                        previous
+                }
+            ]
+            if previous
+            else []
+        )
+    }
+
+
+# -------------------------------------------------
+# Microsoft Edge
+# -------------------------------------------------
+
+def find_edge_stable_versions(data):
+
+    versions = []
+
+
+    if not isinstance(
+        data,
+        list
+    ):
+
+        return versions
+
+
+    for product in data:
+
+        product_name = str(
+            product.get(
+                "Product",
                 ""
             )
         ).lower()
 
-        latest = release.get(
-            "latest"
-        )
-
-        eol = release.get(
-            "eol"
-        )
-
-        lts = bool(
-            release.get(
-                "lts",
-                False
-            )
-        )
-
-        # Ignore IoT releases
-        if "iot" in cycle:
-            continue
-
-        version = windows_version_number(
-            cycle
-        )
-
-        if not version:
-            continue
-
-        display_name = None
-
-        # --------------------------------------------------
-        # Windows 11 LTSC
-        # --------------------------------------------------
 
         if (
-            cycle.startswith("11-")
-            and lts
-        ):
-
-            display_name = (
-                f"11 {version} LTSC"
-            )
-
-        # --------------------------------------------------
-        # Windows 11 normal editions
-        # --------------------------------------------------
-
-        elif cycle.startswith("11-"):
-
-            # Enterprise / Education release
-            if "-e" in cycle:
-
-                display_name = (
-                    f"11 {version} "
-                    f"Enterprise/Education"
-                )
-
-            # Home / Pro release
-            elif "-w" in cycle:
-
-                display_name = (
-                    f"11 {version}"
-                )
-
-            else:
-
-                display_name = (
-                    f"11 {version}"
-                )
-
-        # --------------------------------------------------
-        # Windows 10 LTSC / LTSB
-        # --------------------------------------------------
-
-        elif (
-            cycle.startswith("10-")
-            and lts
-        ):
-
-            if version == "21H2":
-
-                display_name = (
-                    "10 LTSC 2021"
-                )
-
-            elif version == "1809":
-
-                display_name = (
-                    "10 LTSC 2019"
-                )
-
-            elif version == "1607":
-
-                display_name = (
-                    "10 LTSB 2016"
-                )
-
-            elif version == "1507":
-
-                display_name = (
-                    "10 LTSB 2015"
-                )
-
-            else:
-
-                display_name = (
-                    f"10 {version} LTSC"
-                )
-
-        # --------------------------------------------------
-        # Normal Windows 10
-        # --------------------------------------------------
-
-        elif cycle.startswith("10-"):
-
-            display_name = (
-                f"10 {version}"
-            )
-
-        else:
-
-            continue
-
-        entry = {
-            "version": display_name,
-            "latest": latest,
-            "eol": eol,
-        }
-
-        if is_supported(release):
-
-            existing = supported_by_name.get(
-                display_name
-            )
-
-            if existing is None:
-
-                supported_by_name[
-                    display_name
-                ] = entry
-
-            else:
-
-                # Prefer whichever entry has a usable
-                # build number.
-                if (
-                    not existing.get("latest")
-                    and latest
-                ):
-
-                    supported_by_name[
-                        display_name
-                    ] = entry
-
-        else:
-
-            unsupported.append(
-                entry
-            )
-
-    supported = list(
-        supported_by_name.values()
-    )
-
-    # ------------------------------------------------------
-    # Remove duplicate Windows 11 rows where:
-    #
-    # 11 25H2
-    # 11 25H2 Enterprise/Education
-    #
-    # are both supported.
-    #
-    # In that situation the simple row is sufficient.
-    #
-    # However if Home/Pro has expired and Enterprise/
-    # Education remains supported, keep the edition label.
-    # ------------------------------------------------------
-
-    simple_supported_versions = set()
-
-    for entry in supported:
-
-        match = re.fullmatch(
-            r"11 (\d+H\d+)",
-            entry["version"]
-        )
-
-        if match:
-
-            simple_supported_versions.add(
-                match.group(1)
-            )
-
-    cleaned_supported = []
-
-    for entry in supported:
-
-        match = re.fullmatch(
-            r"11 (\d+H\d+) Enterprise/Education",
-            entry["version"]
-        )
-
-        if (
-            match
-            and match.group(1)
-            in simple_supported_versions
+            "stable"
+            not in product_name
         ):
 
             continue
 
-        cleaned_supported.append(
-            entry
-        )
 
-    supported = cleaned_supported
+        for release in product.get(
+            "Releases",
+            []
+        ):
 
-    # ------------------------------------------------------
-    # Sort Windows rows
-    # ------------------------------------------------------
-
-    def windows_sort_key(entry):
-
-        name = entry["version"]
-
-        # Windows 11 first
-        if name.startswith("11 "):
-
-            version_match = re.search(
-                r"(\d+)H(\d+)",
-                name
+            version = release.get(
+                "ProductVersion"
             )
 
-            if version_match:
 
-                return (
-                    0,
-                    -int(version_match.group(1)),
-                    -int(version_match.group(2)),
-                    0 if "LTSC" in name else 1
+            if version:
+
+                versions.append(
+                    version
                 )
 
-            return (
-                0,
-                0,
-                0,
-                0
-            )
 
-        # Windows 10 LTSC/LTSB
-        if name.startswith("10 "):
+    return versions
 
-            if "2021" in name:
-                rank = 0
 
-            elif "2019" in name:
-                rank = 1
+def get_edge_data():
 
-            elif "2016" in name:
-                rank = 2
-
-            elif "2015" in name:
-                rank = 3
-
-            else:
-                rank = 4
-
-            return (
-                1,
-                rank,
-                0,
-                0
-            )
-
-        return (
-            9,
-            9,
-            9,
-            9
-        )
-
-    supported.sort(
-        key=windows_sort_key
-    )
-
-    # ------------------------------------------------------
-    # Previous unsupported Windows release
-    # ------------------------------------------------------
-
-    preferred_previous = None
-
-    for entry in unsupported:
-
-        if entry["version"] == "10 22H2":
-
-            preferred_previous = entry
-            break
-
-    if (
-        preferred_previous is None
-        and unsupported
-    ):
-
-        preferred_previous = unsupported[0]
-
-    previous_unsupported = []
-
-    if preferred_previous:
-
-        previous_unsupported.append(
-            preferred_previous
-        )
-
-    return (
-        supported,
-        previous_unsupported
+    print(
+        "Checking Microsoft Edge..."
     )
 
 
-# ----------------------------------------------------------
+    data = download_json(
+        EDGE_VERSION_URL
+    )
+
+
+    versions = find_edge_stable_versions(
+        data
+    )
+
+
+    versions = sorted(
+        set(
+            versions
+        ),
+        key=version_tuple,
+        reverse=True
+    )
+
+
+    if not versions:
+
+        raise RuntimeError(
+            "No Microsoft Edge Stable versions found"
+        )
+
+
+    current = versions[0]
+
+
+    previous = get_previous_major_release(
+        versions,
+        current
+    )
+
+
+    return {
+        "supported": [
+            {
+                "version":
+                    current
+            }
+        ],
+
+        "unsupported": (
+            [
+                {
+                    "version":
+                        previous
+                }
+            ]
+            if previous
+            else []
+        )
+    }
+
+
+# -------------------------------------------------
+# Safari
+# -------------------------------------------------
+
+def get_safari_data(
+    apple_history
+):
+
+    print(
+        "Checking Apple Safari..."
+    )
+
+
+    versions = apple_history.get(
+        "Safari",
+        []
+    )
+
+
+    versions = sorted(
+        set(
+            versions
+        ),
+        key=version_tuple,
+        reverse=True
+    )
+
+
+    if not versions:
+
+        raise RuntimeError(
+            "No Safari versions found"
+        )
+
+
+    current = versions[0]
+
+
+    previous = get_previous_major_release(
+        versions,
+        current
+    )
+
+
+    return {
+        "supported": [
+            {
+                "version":
+                    current
+            }
+        ],
+
+        "unsupported": (
+            [
+                {
+                    "version":
+                        previous
+                }
+            ]
+            if previous
+            else []
+        )
+    }
+
+
+# -------------------------------------------------
 # Apple history
-# ----------------------------------------------------------
-
-print(
-    "Checking Apple security releases..."
-)
+# -------------------------------------------------
 
 try:
 
@@ -597,19 +765,21 @@ try:
 except Exception as error:
 
     print(
-        "Warning: Unable to read Apple security releases:",
+        "Warning: Unable to read "
+        "Apple security releases:",
         error
     )
 
     apple_history = {
         "macOS": [],
         "iOS": [],
+        "Safari": [],
     }
 
 
-# ----------------------------------------------------------
-# Output
-# ----------------------------------------------------------
+# -------------------------------------------------
+# Main result
+# -------------------------------------------------
 
 result = {
 
@@ -623,58 +793,68 @@ result = {
         "support":
             "https://endoflife.date",
 
-        "apple_history":
+        "apple":
             APPLE_SECURITY_URL,
 
-    }
+        "chrome":
+            CHROME_VERSION_URL,
+
+        "edge":
+            EDGE_VERSION_URL,
+
+        "firefox":
+            FIREFOX_VERSION_URL,
+
+        "firefox_history":
+            FIREFOX_HISTORY_URL,
+    },
+
+    "_browsers": {}
 }
 
 
-# ----------------------------------------------------------
-# Process operating systems
-# ----------------------------------------------------------
+# -------------------------------------------------
+# Operating systems
+# -------------------------------------------------
 
-for display_name, product in PRODUCTS.items():
+for (
+    display_name,
+    product
+) in PRODUCTS.items():
 
     print(
         f"Checking {display_name}..."
     )
 
-    releases = get_eol_data(
-        product
-    )
 
-    # ------------------------------------------------------
-    # Windows special handling
-    # ------------------------------------------------------
+    try:
 
-    if display_name == "Windows":
-
-        supported, unsupported = (
-            get_windows_entries(
-                releases
-            )
+        releases = get_eol_data(
+            product
         )
 
-        result[display_name] = {
-            "supported": supported,
-            "unsupported": unsupported,
-        }
+    except Exception as error:
+
+        print(
+            f"ERROR checking "
+            f"{display_name}: "
+            f"{error}"
+        )
 
         continue
 
-    # ------------------------------------------------------
-    # Other OS
-    # ------------------------------------------------------
 
     supported = []
+
     unsupported = []
+
 
     for release in releases:
 
         latest = release.get(
             "latest"
         )
+
 
         entry = {
 
@@ -690,25 +870,33 @@ for display_name, product in PRODUCTS.items():
                 release.get(
                     "eol"
                 ),
-
         }
 
-        # Apple previous minor/security release
-        if display_name in (
-            "macOS",
-            "iOS"
+
+        if (
+            display_name
+            in (
+                "macOS",
+                "iOS"
+            )
+            and
+            latest
         ):
 
             entry["previous"] = (
-                find_previous_apple_version(
+                find_previous_same_major(
                     latest,
-                    apple_history[
-                        display_name
-                    ]
+                    apple_history.get(
+                        display_name,
+                        []
+                    )
                 )
             )
 
-        if is_supported(release):
+
+        if is_supported(
+            release
+        ):
 
             supported.append(
                 entry
@@ -720,36 +908,9 @@ for display_name, product in PRODUCTS.items():
                 entry
             )
 
-    # Only show one previous unsupported release
-    if unsupported:
 
-        unsupported = [
-            unsupported[0]
-        ]
-
-    result[display_name] = {
-        "supported": supported,
-        "unsupported": unsupported,
-    }
-
-
-# ----------------------------------------------------------
-# Write JSON
-# ----------------------------------------------------------
-
-with open(
-    "os-support.json",
-    "w",
-    encoding="utf-8"
-) as file:
-
-    json.dump(
-        result,
-        file,
-        indent=2
-    )
-
-
-print(
-    "os-support.json updated successfully."
-)
+    /*
+    Python does not support C-style comments.
+    This marker is intentionally not valid and
+    must not appear in the final file.
+    */
