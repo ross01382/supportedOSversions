@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -15,13 +14,11 @@
         Operating System Support
     </title>
 
-
     <style>
 
         * {
             box-sizing: border-box;
         }
-
 
         body {
 
@@ -39,9 +36,7 @@
 
             color:
                 #111;
-
         }
-
 
         .page {
 
@@ -49,9 +44,7 @@
 
             margin:
                 0 auto;
-
         }
-
 
         h1 {
 
@@ -62,9 +55,7 @@
 
             font-size:
                 30px;
-
         }
-
 
         .subtitle {
 
@@ -78,9 +69,7 @@
 
             margin-bottom:
                 36px;
-
         }
-
 
         .grid {
 
@@ -97,9 +86,7 @@
 
             align-items:
                 start;
-
         }
-
 
         .card {
 
@@ -123,9 +110,7 @@
 
             min-height:
                 275px;
-
         }
-
 
         .card h2 {
 
@@ -134,9 +119,7 @@
 
             font-size:
                 20px;
-
         }
-
 
         .headings {
 
@@ -144,8 +127,8 @@
 
             grid-template-columns:
                 18px
-                1fr
-                1fr;
+                minmax(0, 1fr)
+                90px;
 
             font-size:
                 10px;
@@ -155,17 +138,13 @@
 
             margin-bottom:
                 5px;
-
         }
-
 
         .headings .right {
 
             text-align:
                 right;
-
         }
-
 
         .row {
 
@@ -174,7 +153,7 @@
             grid-template-columns:
                 18px
                 minmax(0, 1fr)
-                minmax(80px, auto);
+                90px;
 
             align-items:
                 center;
@@ -187,20 +166,13 @@
 
             font-size:
                 13px;
-
-            gap:
-                0;
-
         }
-
 
         .row:last-child {
 
             border-bottom:
                 none;
-
         }
-
 
         .version {
 
@@ -210,8 +182,12 @@
             min-width:
                 0;
 
-        }
+            padding-right:
+                8px;
 
+            line-height:
+                1.2;
+        }
 
         .latest {
 
@@ -224,11 +200,9 @@
             white-space:
                 nowrap;
 
-            padding-left:
-                8px;
-
+            font-size:
+                12px;
         }
-
 
         .dot {
 
@@ -243,25 +217,19 @@
 
             display:
                 inline-block;
-
         }
-
 
         .supported-dot {
 
             background:
                 #2dbf61;
-
         }
-
 
         .unsupported-dot {
 
             background:
                 #ff3b30;
-
         }
-
 
         .unsupported-title {
 
@@ -282,17 +250,13 @@
 
             letter-spacing:
                 0.2px;
-
         }
-
 
         .unsupported-row {
 
             border-bottom:
                 none;
-
         }
-
 
         footer {
 
@@ -310,9 +274,7 @@
 
             line-height:
                 1.8;
-
         }
-
 
         footer a {
 
@@ -321,9 +283,7 @@
 
             text-decoration:
                 underline;
-
         }
-
 
         .loading {
 
@@ -335,9 +295,7 @@
 
             color:
                 #666;
-
         }
-
 
         .error {
 
@@ -349,26 +307,33 @@
 
             color:
                 #c00;
-
         }
 
-
-        /* ----------------------------------------
-           Windows card is allowed to grow taller
-           because it contains more releases
-           ---------------------------------------- */
+        /*
+            Windows has more rows,
+            so allow natural height.
+        */
 
         .windows-card {
 
             min-height:
-                275px;
-
+                0;
         }
 
+        /*
+            Give Windows slightly smaller
+            text so long edition names fit.
+        */
 
-        /* ----------------------------------------
-           Tablet
-           ---------------------------------------- */
+        .windows-card .version {
+
+            font-size:
+                12px;
+        }
+
+        /*
+            Tablet
+        */
 
         @media (
             max-width: 850px
@@ -381,15 +346,12 @@
                         2,
                         minmax(0, 1fr)
                     );
-
             }
-
         }
 
-
-        /* ----------------------------------------
-           Phone
-           ---------------------------------------- */
+        /*
+            Phone
+        */
 
         @media (
             max-width: 560px
@@ -399,49 +361,36 @@
 
                 padding:
                     25px 12px;
-
             }
-
 
             .grid {
 
                 grid-template-columns:
                     1fr;
-
             }
-
 
             h1 {
 
                 font-size:
                     25px;
-
             }
-
         }
 
     </style>
 
 </head>
 
-
 <body>
 
-
 <div class="page">
-
 
     <h1>
         Operating System Support
     </h1>
 
-
     <div class="subtitle">
-
         Current supported operating system versions
-
     </div>
-
 
     <div
         id="grid"
@@ -449,13 +398,10 @@
     >
 
         <div class="loading">
-
             Loading support information...
-
         </div>
 
     </div>
-
 
     <footer>
 
@@ -485,42 +431,28 @@
 
         </div>
 
-
         <div id="lastUpdated">
-
-            Last updated:
-            loading...
-
+            Last updated: loading...
         </div>
 
     </footer>
 
-
 </div>
-
 
 
 <script>
 
-
 const DISPLAY_ORDER = [
 
     "macOS",
-
     "iOS",
-
     "Android",
-
     "Windows",
-
     "Windows Server",
-
     "Ubuntu",
-
     "Red Hat Enterprise Linux"
 
 ];
-
 
 
 function createDot(
@@ -538,9 +470,7 @@ function createDot(
             : "dot unsupported-dot";
 
     return dot;
-
 }
-
 
 
 function createRow(
@@ -554,18 +484,15 @@ function createRow(
             "div"
         );
 
-
     row.className =
         supported
             ? "row"
             : "row unsupported-row";
 
-
     const dotHolder =
         document.createElement(
             "div"
         );
-
 
     dotHolder.appendChild(
         createDot(
@@ -573,36 +500,28 @@ function createRow(
         )
     );
 
-
     const version =
         document.createElement(
             "div"
         );
 
-
     version.className =
         "version";
 
-
     version.textContent =
         item.version ?? "";
-
 
     const latest =
         document.createElement(
             "div"
         );
 
-
     latest.className =
         "latest";
 
-
     /*
-       Apple:
-
-       Show previous security/minor
-       release instead of build number.
+        Apple:
+        show previous minor/security release.
     */
 
     if (
@@ -625,36 +544,28 @@ function createRow(
 
             latest.textContent =
                 "";
-
         }
 
     } else {
 
         latest.textContent =
             item.latest ?? "";
-
     }
-
 
     row.appendChild(
         dotHolder
     );
 
-
     row.appendChild(
         version
     );
-
 
     row.appendChild(
         latest
     );
 
-
     return row;
-
 }
-
 
 
 function createCard(
@@ -667,10 +578,8 @@ function createCard(
             "section"
         );
 
-
     card.className =
         "card";
-
 
     if (
         operatingSystem
@@ -680,64 +589,48 @@ function createCard(
         card.classList.add(
             "windows-card"
         );
-
     }
-
 
     const title =
         document.createElement(
             "h2"
         );
 
-
     title.textContent =
         operatingSystem;
-
 
     card.appendChild(
         title
     );
-
-
-    /*
-       Column headings
-    */
 
     const headings =
         document.createElement(
             "div"
         );
 
-
     headings.className =
         "headings";
-
 
     const blank =
         document.createElement(
             "div"
         );
 
-
     const left =
         document.createElement(
             "div"
         );
 
-
     left.textContent =
         "Supported version";
-
 
     const right =
         document.createElement(
             "div"
         );
 
-
     right.className =
         "right";
-
 
     if (
         operatingSystem === "macOS"
@@ -752,37 +645,26 @@ function createCard(
 
         right.textContent =
             "Latest";
-
     }
-
 
     headings.appendChild(
         blank
     );
 
-
     headings.appendChild(
         left
     );
-
 
     headings.appendChild(
         right
     );
 
-
     card.appendChild(
         headings
     );
 
-
-    /*
-       Supported versions
-    */
-
     const supported =
         data.supported || [];
-
 
     supported.forEach(
         function(item) {
@@ -794,18 +676,11 @@ function createCard(
                     operatingSystem
                 )
             );
-
         }
     );
 
-
-    /*
-       Previous unsupported
-    */
-
     const unsupported =
         data.unsupported || [];
-
 
     if (
         unsupported.length > 0
@@ -816,19 +691,15 @@ function createCard(
                 "div"
             );
 
-
         heading.className =
             "unsupported-title";
-
 
         heading.textContent =
             "Previous unsupported";
 
-
         card.appendChild(
             heading
         );
-
 
         unsupported.forEach(
             function(item) {
@@ -840,17 +711,12 @@ function createCard(
                         operatingSystem
                     )
                 );
-
             }
         );
-
     }
 
-
     return card;
-
 }
-
 
 
 function formatUpdatedTime(
@@ -861,12 +727,10 @@ function formatUpdatedTime(
         return "Unknown";
     }
 
-
     const date =
         new Date(
             value
         );
-
 
     if (
         Number.isNaN(
@@ -875,14 +739,11 @@ function formatUpdatedTime(
     ) {
 
         return value;
-
     }
-
 
     return date.toLocaleString(
         "en-GB",
         {
-
             day:
                 "2-digit",
 
@@ -903,12 +764,9 @@ function formatUpdatedTime(
 
             timeZoneName:
                 "short"
-
         }
     );
-
 }
-
 
 
 async function loadData() {
@@ -918,13 +776,7 @@ async function loadData() {
             "grid"
         );
 
-
     try {
-
-        /*
-           Cache-busting value prevents GitHub
-           Pages/browser caching an old JSON file.
-        */
 
         const response =
             await fetch(
@@ -936,32 +788,19 @@ async function loadData() {
                 }
             );
 
-
         if (!response.ok) {
 
             throw new Error(
                 "HTTP "
                 + response.status
             );
-
         }
-
 
         const data =
             await response.json();
 
-
-        /*
-           Remove loading message
-        */
-
         grid.innerHTML =
             "";
-
-
-        /*
-           Create cards in our chosen order
-        */
 
         DISPLAY_ORDER.forEach(
             function(
@@ -982,22 +821,14 @@ async function loadData() {
                             ]
                         )
                     );
-
                 }
-
             }
         );
-
-
-        /*
-           Last updated time
-        */
 
         const updated =
             document.getElementById(
                 "lastUpdated"
             );
-
 
         updated.textContent =
             "Last updated: "
@@ -1005,49 +836,36 @@ async function loadData() {
                 data._last_updated
             );
 
-
     } catch (error) {
 
         console.error(
             error
         );
 
-
         grid.innerHTML =
             "";
-
 
         const message =
             document.createElement(
                 "div"
             );
 
-
         message.className =
             "error";
 
-
         message.textContent =
-            "Unable to load "
-            + "operating system "
-            + "support data.";
-
+            "Unable to load operating system support data.";
 
         grid.appendChild(
             message
         );
-
     }
-
 }
-
 
 
 loadData();
 
-
 </script>
-
 
 </body>
 
