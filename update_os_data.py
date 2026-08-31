@@ -4,6 +4,10 @@ import urllib.request
 from datetime import date, datetime, timezone
 
 
+# ============================================================
+# SOURCES
+# ============================================================
+
 PRODUCTS = {
     "macOS": "macos",
     "iOS": "ios",
@@ -15,9 +19,7 @@ PRODUCTS = {
 }
 
 
-EOL_API = (
-    "https://endoflife.date/api/{product}.json"
-)
+EOL_API = "https://endoflife.date/api/{product}.json"
 
 APPLE_SECURITY_URL = (
     "https://support.apple.com/en-us/100100"
@@ -26,6 +28,7 @@ APPLE_SECURITY_URL = (
 CHROME_VERSION_URL = (
     "https://versionhistory.googleapis.com/"
     "v1/chrome/platforms/win/channels/stable/versions"
+    "?order_by=version%20desc&page_size=200"
 )
 
 EDGE_VERSION_URL = (
@@ -43,6 +46,10 @@ FIREFOX_HISTORY_URL = (
     "1.0/firefox_history_stability_releases.json"
 )
 
+
+# ============================================================
+# BASIC DOWNLOAD FUNCTIONS
+# ============================================================
 
 def download_text(url):
 
@@ -68,9 +75,7 @@ def download_text(url):
 def download_json(url):
 
     return json.loads(
-        download_text(
-            url
-        )
+        download_text(url)
     )
 
 
@@ -80,37 +85,61 @@ def get_eol_data(product):
         product=product
     )
 
-    return download_json(
-        url
+    return download_json(url)
+
+
+# ============================================================
+# VERSION HELPERS
+# ============================================================
+
+def version_major(version):
+
+    if not version:
+        return None
+
+    match = re.match(
+        r"^(\d+)",
+        str(version)
+    )
+
+    if match:
+
+        return int(
+            match.group(1)
+        )
+
+    return None
+
+
+def version_tuple(version):
+
+    if not version:
+        return tuple()
+
+    numbers = re.findall(
+        r"\d+",
+        str(version)
+    )
+
+    return tuple(
+        int(number)
+        for number in numbers
     )
 
 
 def is_supported(item):
 
-    eol = item.get(
-        "eol"
-    )
+    eol = item.get("eol")
 
-    if (
-        eol is False
-        or
-        eol is None
-    ):
-
+    if eol is False or eol is None:
         return True
 
-
-    if isinstance(
-        eol,
-        str
-    ):
+    if isinstance(eol, str):
 
         try:
 
             return (
-                date.fromisoformat(
-                    eol
-                )
+                date.fromisoformat(eol)
                 >=
                 date.today()
             )
@@ -119,51 +148,12 @@ def is_supported(item):
 
             return False
 
-
     return False
 
 
-def version_major(version):
-
-    if not version:
-
-        return None
-
-
-    match = re.match(
-        r"^(\d+)",
-        str(version)
-    )
-
-
-    if match:
-
-        return int(
-            match.group(1)
-        )
-
-
-    return None
-
-
-def version_tuple(version):
-
-    if not version:
-
-        return tuple()
-
-
-    numbers = re.findall(
-        r"\d+",
-        str(version)
-    )
-
-
-    return tuple(
-        int(number)
-        for number in numbers
-    )
-
+# ============================================================
+# HTML CLEANING
+# ============================================================
 
 def clean_html_text(html):
 
@@ -197,18 +187,9 @@ def clean_html_text(html):
 
     text = (
         text
-        .replace(
-            "&nbsp;",
-            " "
-        )
-        .replace(
-            "&#x27;",
-            "'"
-        )
-        .replace(
-            "&amp;",
-            "&"
-        )
+        .replace("&nbsp;", " ")
+        .replace("&#x27;", "'")
+        .replace("&amp;", "&")
     )
 
     text = re.sub(
@@ -219,6 +200,10 @@ def clean_html_text(html):
 
     return text
 
+
+# ============================================================
+# APPLE RELEASE HISTORY
+# ============================================================
 
 def get_apple_release_history():
 
@@ -258,6 +243,8 @@ def get_apple_release_history():
         flags=re.IGNORECASE
     )
 
+
+    # Remove duplicates while preserving source order.
 
     macos_versions = list(
         dict.fromkeys(
@@ -306,13 +293,16 @@ def get_apple_release_history():
     }
 
 
+# ============================================================
+# FIND PREVIOUS APPLE MINOR RELEASE
+# ============================================================
+
 def find_previous_same_major(
     current_version,
     history
 ):
 
     if not current_version:
-
         return None
 
 
@@ -329,9 +319,7 @@ def find_previous_same_major(
         in history
 
         if (
-            version_major(
-                version
-            )
+            version_major(version)
             ==
             major
         )
@@ -339,9 +327,7 @@ def find_previous_same_major(
 
 
     candidates = sorted(
-        set(
-            candidates
-        ),
+        set(candidates),
         key=version_tuple,
         reverse=True
     )
@@ -361,9 +347,7 @@ def find_previous_same_major(
     if (
         current_index + 1
         <
-        len(
-            candidates
-        )
+        len(candidates)
     ):
 
         return candidates[
@@ -374,6 +358,10 @@ def find_previous_same_major(
     return None
 
 
+# ============================================================
+# FIND PREVIOUS BROWSER MAJOR RELEASE
+# ============================================================
+
 def get_previous_major_release(
     versions,
     current_version
@@ -383,16 +371,40 @@ def get_previous_major_release(
         current_version
     )
 
-
     if current_major is None:
-
         return None
 
 
-    previous_major = (
-        current_major
-        -
-        1
+    lower_major_versions = [
+
+        version
+
+        for version in versions
+
+        if (
+            version_major(version)
+            is not None
+            and
+            version_major(version)
+            <
+            current_major
+        )
+    ]
+
+
+    if not lower_major_versions:
+        return None
+
+
+    previous_major = max(
+
+        version_major(version)
+
+        for version
+        in lower_major_versions
+
+        if version_major(version)
+        is not None
     )
 
 
@@ -401,12 +413,10 @@ def get_previous_major_release(
         version
 
         for version
-        in versions
+        in lower_major_versions
 
         if (
-            version_major(
-                version
-            )
+            version_major(version)
             ==
             previous_major
         )
@@ -414,7 +424,6 @@ def get_previous_major_release(
 
 
     if not candidates:
-
         return None
 
 
@@ -424,9 +433,9 @@ def get_previous_major_release(
     )
 
 
-# -------------------------------------------------
-# Chrome
-# -------------------------------------------------
+# ============================================================
+# GOOGLE CHROME
+# ============================================================
 
 def get_chrome_data():
 
@@ -442,9 +451,7 @@ def get_chrome_data():
 
     versions = [
 
-        item.get(
-            "version"
-        )
+        item.get("version")
 
         for item
         in data.get(
@@ -452,16 +459,12 @@ def get_chrome_data():
             []
         )
 
-        if item.get(
-            "version"
-        )
+        if item.get("version")
     ]
 
 
     versions = sorted(
-        set(
-            versions
-        ),
+        set(versions),
         key=version_tuple,
         reverse=True
     )
@@ -483,7 +486,19 @@ def get_chrome_data():
     )
 
 
+    print(
+        "Chrome current:",
+        current
+    )
+
+    print(
+        "Chrome previous major:",
+        previous
+    )
+
+
     return {
+
         "supported": [
             {
                 "version":
@@ -504,9 +519,9 @@ def get_chrome_data():
     }
 
 
-# -------------------------------------------------
-# Firefox
-# -------------------------------------------------
+# ============================================================
+# MOZILLA FIREFOX
+# ============================================================
 
 def get_firefox_data():
 
@@ -548,7 +563,19 @@ def get_firefox_data():
     )
 
 
+    print(
+        "Firefox current:",
+        current
+    )
+
+    print(
+        "Firefox previous major:",
+        previous
+    )
+
+
     return {
+
         "supported": [
             {
                 "version":
@@ -569,9 +596,9 @@ def get_firefox_data():
     }
 
 
-# -------------------------------------------------
-# Microsoft Edge
-# -------------------------------------------------
+# ============================================================
+# MICROSOFT EDGE
+# ============================================================
 
 def find_edge_stable_versions(data):
 
@@ -588,6 +615,14 @@ def find_edge_stable_versions(data):
 
     for product in data:
 
+        if not isinstance(
+            product,
+            dict
+        ):
+
+            continue
+
+
         product_name = str(
             product.get(
                 "Product",
@@ -596,18 +631,36 @@ def find_edge_stable_versions(data):
         ).lower()
 
 
-        if (
-            "stable"
-            not in product_name
+        # Microsoft currently labels the normal
+        # production Edge channel as Stable.
+
+        if "stable" not in product_name:
+            continue
+
+
+        releases = product.get(
+            "Releases",
+            []
+        )
+
+
+        if not isinstance(
+            releases,
+            list
         ):
 
             continue
 
 
-        for release in product.get(
-            "Releases",
-            []
-        ):
+        for release in releases:
+
+            if not isinstance(
+                release,
+                dict
+            ):
+
+                continue
+
 
             version = release.get(
                 "ProductVersion"
@@ -617,7 +670,7 @@ def find_edge_stable_versions(data):
             if version:
 
                 versions.append(
-                    version
+                    str(version)
                 )
 
 
@@ -642,9 +695,7 @@ def get_edge_data():
 
 
     versions = sorted(
-        set(
-            versions
-        ),
+        set(versions),
         key=version_tuple,
         reverse=True
     )
@@ -653,7 +704,8 @@ def get_edge_data():
     if not versions:
 
         raise RuntimeError(
-            "No Microsoft Edge Stable versions found"
+            "No Microsoft Edge Stable "
+            "versions found"
         )
 
 
@@ -666,7 +718,19 @@ def get_edge_data():
     )
 
 
+    print(
+        "Edge current:",
+        current
+    )
+
+    print(
+        "Edge previous major:",
+        previous
+    )
+
+
     return {
+
         "supported": [
             {
                 "version":
@@ -687,9 +751,9 @@ def get_edge_data():
     }
 
 
-# -------------------------------------------------
-# Safari
-# -------------------------------------------------
+# ============================================================
+# APPLE SAFARI
+# ============================================================
 
 def get_safari_data(
     apple_history
@@ -706,10 +770,20 @@ def get_safari_data(
     )
 
 
+    versions = [
+
+        version
+
+        for version
+        in versions
+
+        if version_major(version)
+        is not None
+    ]
+
+
     versions = sorted(
-        set(
-            versions
-        ),
+        set(versions),
         key=version_tuple,
         reverse=True
     )
@@ -731,7 +805,19 @@ def get_safari_data(
     )
 
 
+    print(
+        "Safari current:",
+        current
+    )
+
+    print(
+        "Safari previous major:",
+        previous
+    )
+
+
     return {
+
         "supported": [
             {
                 "version":
@@ -752,9 +838,9 @@ def get_safari_data(
     }
 
 
-# -------------------------------------------------
-# Apple history
-# -------------------------------------------------
+# ============================================================
+# READ APPLE HISTORY
+# ============================================================
 
 try:
 
@@ -765,7 +851,7 @@ try:
 except Exception as error:
 
     print(
-        "Warning: Unable to read "
+        "WARNING: Unable to read "
         "Apple security releases:",
         error
     )
@@ -777,9 +863,9 @@ except Exception as error:
     }
 
 
-# -------------------------------------------------
-# Main result
-# -------------------------------------------------
+# ============================================================
+# CREATE RESULT
+# ============================================================
 
 result = {
 
@@ -790,7 +876,7 @@ result = {
 
     "_sources": {
 
-        "support":
+        "endoflife":
             "https://endoflife.date",
 
         "apple":
@@ -813,9 +899,9 @@ result = {
 }
 
 
-# -------------------------------------------------
-# Operating systems
-# -------------------------------------------------
+# ============================================================
+# OPERATING SYSTEMS
+# ============================================================
 
 for (
     display_name,
@@ -873,6 +959,10 @@ for (
         }
 
 
+        # ----------------------------------------------------
+        # Apple minor/security releases
+        # ----------------------------------------------------
+
         if (
             display_name
             in (
@@ -909,8 +999,127 @@ for (
             )
 
 
-    /*
-    Python does not support C-style comments.
-    This marker is intentionally not valid and
-    must not appear in the final file.
-    */
+    # Sort releases newest first where possible.
+
+    supported = sorted(
+        supported,
+        key=lambda item:
+            version_tuple(
+                item.get(
+                    "version",
+                    ""
+                )
+            ),
+        reverse=True
+    )
+
+
+    unsupported = sorted(
+        unsupported,
+        key=lambda item:
+            version_tuple(
+                item.get(
+                    "version",
+                    ""
+                )
+            ),
+        reverse=True
+    )
+
+
+    result[
+        display_name
+    ] = {
+
+        "supported":
+            supported,
+
+        "unsupported":
+            unsupported[:1],
+    }
+
+
+# ============================================================
+# BROWSERS
+# ============================================================
+
+browser_functions = {
+
+    "Google Chrome":
+        get_chrome_data,
+
+    "Microsoft Edge":
+        get_edge_data,
+
+    "Mozilla Firefox":
+        get_firefox_data,
+}
+
+
+for (
+    browser_name,
+    browser_function
+) in browser_functions.items():
+
+    try:
+
+        result[
+            "_browsers"
+        ][
+            browser_name
+        ] = browser_function()
+
+    except Exception as error:
+
+        print(
+            f"ERROR checking "
+            f"{browser_name}: "
+            f"{error}"
+        )
+
+
+# ============================================================
+# SAFARI
+# ============================================================
+
+try:
+
+    result[
+        "_browsers"
+    ][
+        "Apple Safari"
+    ] = get_safari_data(
+        apple_history
+    )
+
+except Exception as error:
+
+    print(
+        "ERROR checking "
+        "Apple Safari:",
+        error
+    )
+
+
+# ============================================================
+# WRITE JSON
+# ============================================================
+
+with open(
+    "os-support.json",
+    "w",
+    encoding="utf-8"
+) as file:
+
+    json.dump(
+        result,
+        file,
+        indent=2,
+        ensure_ascii=False
+    )
+
+
+print()
+print(
+    "os-support.json updated successfully."
+)
