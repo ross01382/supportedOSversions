@@ -1,686 +1,759 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta charset="UTF-8">
+    <title>Operating System Support Dashboard</title>
 
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <style>
 
-  <title>Operating System Support</title>
+        body {
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
 
-
-  <style>
-
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 40px 20px;
-      color: #222;
-    }
-
-
-    .container {
-      max-width: 1100px;
-      margin: auto;
-    }
+            background: #f5f5f7;
+            color: #1d1d1f;
+            margin: 0;
+            padding: 40px 20px;
+        }
 
 
-    h1 {
-      margin-bottom: 8px;
-    }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
 
 
-    .subtitle {
-      color: #666;
-      margin-bottom: 30px;
-    }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 34px;
+        }
 
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+        }
 
 
-    th {
-      background: #222;
-      color: white;
-      text-align: left;
-      padding: 14px;
-    }
+        .grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(300px, 1fr));
+
+            gap: 22px;
+        }
 
 
-    td {
-      padding: 14px;
-      border-bottom: 1px solid #ddd;
-      vertical-align: top;
-    }
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow:
+                0 2px 8px rgba(0, 0, 0, 0.08);
+        }
 
 
-    tr:last-child td {
-      border-bottom: none;
-    }
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 22px;
+            font-size: 22px;
+        }
 
 
-    /*
-      Status dots
-    */
-
-    .status-dot {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-right: 8px;
-    }
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
 
 
-    .supported-dot {
-      background-color: #16803c;
-    }
+        .version-row {
+            display: grid;
+            grid-template-columns: 18px 1fr 1fr;
+            align-items: center;
+            padding: 9px 0;
+            border-bottom: 1px solid #eeeeee;
+            gap: 8px;
+        }
 
 
-    .unsupported-dot {
-      background-color: #b42318;
-    }
+        .version-row:last-child {
+            border-bottom: none;
+        }
 
 
-    /*
-      Apple version pairs
-    */
-
-    .version-line {
-      margin-bottom: 5px;
-      white-space: nowrap;
-    }
+        .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+        }
 
 
-    .version-line:last-child {
-      margin-bottom: 0;
-    }
+        .supported-dot {
+            background: #34c759;
+        }
 
 
-    .loading {
-      padding: 20px;
-      text-align: center;
-    }
+        .unsupported-dot {
+            background: #ff3b30;
+        }
 
 
-    .footer {
-      margin-top: 20px;
-      font-size: 13px;
-      color: #777;
-      line-height: 1.6;
-    }
+        .version {
+            font-weight: 600;
+        }
 
 
-    .footer a {
-      color: #555;
-    }
+        .latest {
+            color: #555;
+            text-align: right;
+        }
 
 
-  </style>
+        .previous {
+            color: #777;
+            font-size: 14px;
+            text-align: right;
+        }
 
+
+        .column-headings {
+            display: grid;
+            grid-template-columns: 18px 1fr 1fr;
+            gap: 8px;
+
+            font-size: 12px;
+            color: #888;
+
+            margin-bottom: 4px;
+        }
+
+
+        .column-headings div:last-child {
+            text-align: right;
+        }
+
+
+        .empty {
+            color: #999;
+            font-style: italic;
+            padding: 8px 0;
+        }
+
+
+        footer {
+            text-align: center;
+            color: #777;
+            font-size: 13px;
+            margin-top: 40px;
+            line-height: 1.7;
+        }
+
+
+        footer a {
+            color: #555;
+        }
+
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 25px 12px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+        }
+
+    </style>
 </head>
-
 
 
 <body>
 
-
 <div class="container">
 
+    <h1>Operating System Support</h1>
 
-  <h1>Operating System Support</h1>
-
-
-  <div class="subtitle">
-
-    Current supported operating system versions
-
-  </div>
+    <div class="subtitle">
+        Current supported operating system versions
+    </div>
 
 
+    <div id="dashboard" class="grid">
 
-  <table id="os-table">
+        Loading support data...
 
-
-    <thead>
-
-      <tr>
-
-        <th>
-          Operating System
-        </th>
-
-        <th>
-          Supported Versions
-        </th>
-
-        <th>
-          Previous Version
-        </th>
-
-      </tr>
-
-    </thead>
+    </div>
 
 
+    <footer>
 
-    <tbody>
+        <div>
+            Source:
+            <a
+                href="https://endoflife.date"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                endoflife.date
+            </a>
+            —
+            Apple release history:
+            <a
+                href="https://support.apple.com/en-us/100100"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Apple Security Releases
+            </a>
+        </div>
 
-      <tr>
+        <div id="last-updated">
+            Last updated: loading...
+        </div>
 
-        <td colspan="3"
-            class="loading">
-
-          Loading support information...
-
-        </td>
-
-      </tr>
-
-    </tbody>
-
-
-  </table>
-
-
-
-  <div class="footer">
-
-    Sources:
-
-    <a href="https://endoflife.date"
-       target="_blank"
-       rel="noopener noreferrer">
-
-      endoflife.date
-
-    </a>
-
-    and
-
-    <a href="https://support.apple.com/100100"
-       target="_blank"
-       rel="noopener noreferrer">
-
-      Apple Security Releases
-
-    </a>
-
-    — updated daily.
-
-    Last updated:
-
-    <span id="last-updated">
-      Loading...
-    </span>
-
-  </div>
+    </footer>
 
 
 </div>
 
 
-
 <script>
 
+const DISPLAY_ORDER = [
+    "macOS",
+    "iOS",
+    "Android",
+    "Windows",
+    "Windows Server",
+    "Ubuntu",
+    "Red Hat Enterprise Linux"
+];
 
-async function loadOSSupport() {
 
 
-  try {
+function escapeHtml(value) {
 
-
-    const response =
-      await fetch("os-support.json");
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        "Unable to load os-support.json"
-      );
-
+    if (value === null || value === undefined) {
+        return "";
     }
 
-
-    const data =
-      await response.json();
-
-
-
-    /*
-      Last updated time
-    */
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
 
 
-    if (data._last_updated) {
 
+function formatVersion(entry, productName) {
 
-      const updated =
-        new Date(data._last_updated);
-
-
-      const updatedDate =
-        updated.toLocaleDateString(
-          "en-GB"
-        );
-
-
-      const updatedTime =
-        updated.toLocaleTimeString(
-          "en-GB",
-          {
-            hour: "2-digit",
-            minute: "2-digit"
-          }
-        );
-
-
-      document
-        .getElementById("last-updated")
-        .textContent =
-          `${updatedDate} at ${updatedTime}`;
-
-
-    } else {
-
-
-      document
-        .getElementById("last-updated")
-        .textContent =
-          "Unknown";
-
-
+    if (!entry) {
+        return "";
     }
 
-
-
     /*
-      Display order
-    */
-
-
-    const order = [
-
-      "macOS",
-      "iOS",
-      "Android",
-      "Windows",
-      "Windows Server",
-      "Ubuntu",
-      "Red Hat Enterprise Linux"
-
-    ];
-
-
-
-    const tbody =
-      document.querySelector(
-        "#os-table tbody"
-      );
-
-
-    tbody.innerHTML = "";
-
-
-
-    for (const os of order) {
-
-
-      const item = data[os];
-
-
-      if (!item) continue;
-
-
-
-      let supportedDisplay = "";
-
-      let previousDisplay = "";
-
-
-
-      /*
-        --------------------------------------
-        macOS and iOS
-        --------------------------------------
-
-        For Apple, display one line for every
-        supported major version.
+        macOS and iOS:
+        show the actual latest minor release.
 
         Example:
-
-        GREEN 26.6.2
-        GREEN 15.7.9
-        GREEN 14.8.9
-
-        and:
-
-        RED 26.6.1
-        RED 15.7.8
-        RED 14.8.8
-      */
-
-
-      if (
-        os === "macOS" ||
-        os === "iOS"
-      ) {
-
-
-        supportedDisplay =
-          item.supported
-            .map(version => {
-
-              const current =
-                version.latest ||
-                version.version;
-
-              return `
-                <div class="version-line">
-                  <span class="status-dot supported-dot"></span>
-                  ${current}
-                </div>
-              `;
-
-            })
-            .join("");
-
-
-
-        previousDisplay =
-          item.supported
-            .map(version => {
-
-              const previous =
-                version.previous || "—";
-
-              return `
-                <div class="version-line">
-                  <span class="status-dot unsupported-dot"></span>
-                  ${previous}
-                </div>
-              `;
-
-            })
-            .join("");
-
-
-      }
-
-
-
-      /*
-        --------------------------------------
-        Windows
-        --------------------------------------
-      */
-
-
-      else if (os === "Windows") {
-
-
-        const versions =
-          item.supported.map(
-            version => {
-
-
-              const cycle =
-                version.version;
-
-
-              /*
-                Windows 11
-              */
-
-
-              let match =
-                cycle.match(
-                  /^11-(\d+h\d)/i
-                );
-
-
-              if (match) {
-
-                return `Windows 11 ${match[1].toUpperCase()}`;
-
-              }
-
-
-
-              /*
-                Windows 10
-              */
-
-
-              match =
-                cycle.match(
-                  /^10-(\d+h\d)/i
-                );
-
-
-              if (match) {
-
-                return `Windows 10 ${match[1].toUpperCase()}`;
-
-              }
-
-
-
-              /*
-                Older Windows 10
-                releases such as
-                1809 or 1607
-              */
-
-
-              match =
-                cycle.match(
-                  /^10-(\d{4})/
-                );
-
-
-              if (match) {
-
-                return `Windows 10 ${match[1]}`;
-
-              }
-
-
-              return cycle;
-
-
-            }
-          );
-
-
-        const uniqueVersions =
-          [...new Set(versions)];
-
-
-        supportedDisplay = `
-
-          <span class="status-dot supported-dot"></span>
-
-          ${uniqueVersions.join(", ")}
-
-        `;
-
-
-
-        const previousUnsupported =
-          item
-            .previous_unsupported
-            ?.[0]
-            ?.version || "—";
-
-
-        previousDisplay = `
-
-          <span class="status-dot unsupported-dot"></span>
-
-          ${previousUnsupported}
-
-        `;
-
-
-      }
-
-
-
-      /*
-        --------------------------------------
-        All other operating systems
-        --------------------------------------
-      */
-
-
-      else {
-
-
-        const supported =
-          item.supported
-            .map(
-              version =>
-                version.latest ||
-                version.version
-            )
-            .join(", ");
-
-
-
-        const previousUnsupported =
-          item
-            .previous_unsupported
-            ?.[0]
-            ?.version || "—";
-
-
-
-        supportedDisplay = `
-
-          <span class="status-dot supported-dot"></span>
-
-          ${supported || "—"}
-
-        `;
-
-
-
-        previousDisplay = `
-
-          <span class="status-dot unsupported-dot"></span>
-
-          ${previousUnsupported}
-
-        `;
-
-
-      }
-
-
-
-      /*
-        Create row
-      */
-
-
-      const row =
-        document.createElement("tr");
-
-
-
-      row.innerHTML = `
-
-        <td>
-
-          <strong>
-            ${os}
-          </strong>
-
-        </td>
-
-
-        <td>
-
-          ${supportedDisplay}
-
-        </td>
-
-
-        <td>
-
-          ${previousDisplay}
-
-        </td>
-
-      `;
-
-
-
-      tbody.appendChild(row);
-
+        macOS 15 -> 15.7.1
+        iOS 18 -> 18.7.1
+    */
+
+    if (
+        productName === "macOS" ||
+        productName === "iOS"
+    ) {
+
+        return entry.latest || entry.version || "";
 
     }
 
 
+    /*
+        Windows:
+        deliberately show the friendly release
+        such as 25H2 / 24H2 rather than the
+        Microsoft build number.
+    */
 
-  }
+    if (productName === "Windows") {
 
+        return entry.version || "";
 
-  catch (error) {
-
-
-    console.error(error);
-
-
-    document
-      .querySelector(
-        "#os-table tbody"
-      )
-      .innerHTML = `
-
-        <tr>
-
-          <td colspan="3">
-
-            Unable to load operating system
-            support information.
-
-          </td>
-
-        </tr>
-
-      `;
+    }
 
 
-    document
-      .getElementById("last-updated")
-      .textContent =
-        "Unavailable";
+    /*
+        Other operating systems:
+        show the cycle/release name.
+    */
 
-
-  }
-
+    return entry.version || entry.latest || "";
 
 }
 
 
 
-loadOSSupport();
+function formatLatest(entry, productName) {
 
+    if (!entry) {
+        return "";
+    }
+
+
+    /*
+        For Apple we use the second column to show
+        the previous minor version.
+    */
+
+    if (
+        productName === "macOS" ||
+        productName === "iOS"
+    ) {
+
+        if (entry.previous) {
+            return "Previous: " + entry.previous;
+        }
+
+        return "";
+
+    }
+
+
+    /*
+        Windows is intentionally kept simple.
+        Do not show 10.0.26100 etc.
+    */
+
+    if (productName === "Windows") {
+
+        return "";
+
+    }
+
+
+    /*
+        For other products, show the latest release
+        where it adds useful information.
+    */
+
+    if (
+        entry.latest &&
+        entry.latest !== entry.version
+    ) {
+
+        return entry.latest;
+
+    }
+
+    return "";
+
+}
+
+
+
+function getColumnHeading(productName) {
+
+    if (
+        productName === "macOS" ||
+        productName === "iOS"
+    ) {
+
+        return "Previous release";
+
+    }
+
+
+    if (productName === "Windows") {
+
+        return "";
+
+    }
+
+
+    return "Latest";
+
+}
+
+
+
+function createSupportedRow(entry, productName) {
+
+    const version =
+        escapeHtml(
+            formatVersion(entry, productName)
+        );
+
+
+    const detail =
+        escapeHtml(
+            formatLatest(entry, productName)
+        );
+
+
+    return `
+
+        <div class="version-row">
+
+            <span
+                class="dot supported-dot"
+                title="Supported"
+            ></span>
+
+
+            <div class="version">
+                ${version}
+            </div>
+
+
+            <div class="latest">
+                ${detail}
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+
+function createUnsupportedRow(entry, productName) {
+
+    const version =
+        escapeHtml(
+            formatVersion(entry, productName)
+        );
+
+
+    let detail = "";
+
+
+    if (
+        productName !== "Windows" &&
+        entry.latest &&
+        entry.latest !== entry.version
+    ) {
+
+        detail =
+            escapeHtml(entry.latest);
+
+    }
+
+
+    return `
+
+        <div class="version-row">
+
+            <span
+                class="dot unsupported-dot"
+                title="Unsupported"
+            ></span>
+
+
+            <div class="version">
+                ${version}
+            </div>
+
+
+            <div class="latest">
+                ${detail}
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+
+function createCard(productName, productData) {
+
+    const supported =
+        productData.supported || [];
+
+
+    const unsupported =
+        productData.previous_unsupported || [];
+
+
+    let supportedHtml = "";
+
+
+    if (supported.length === 0) {
+
+        supportedHtml = `
+
+            <div class="empty">
+                No supported releases found
+            </div>
+
+        `;
+
+    } else {
+
+        supportedHtml =
+            supported
+                .map(
+                    entry =>
+                        createSupportedRow(
+                            entry,
+                            productName
+                        )
+                )
+                .join("");
+
+    }
+
+
+    let unsupportedHtml = "";
+
+
+    if (unsupported.length > 0) {
+
+        unsupportedHtml = `
+
+            <div class="section-title">
+                Previous unsupported
+            </div>
+
+            ${unsupported
+                .map(
+                    entry =>
+                        createUnsupportedRow(
+                            entry,
+                            productName
+                        )
+                )
+                .join("")}
+
+        `;
+
+    }
+
+
+    const columnHeading =
+        getColumnHeading(productName);
+
+
+    let headingsHtml = "";
+
+
+    if (columnHeading) {
+
+        headingsHtml = `
+
+            <div class="column-headings">
+
+                <div></div>
+
+                <div>
+                    Supported version
+                </div>
+
+                <div>
+                    ${escapeHtml(columnHeading)}
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    return `
+
+        <div class="card">
+
+            <h2>
+                ${escapeHtml(productName)}
+            </h2>
+
+            ${headingsHtml}
+
+            ${supportedHtml}
+
+            ${unsupportedHtml}
+
+        </div>
+
+    `;
+
+}
+
+
+
+function displayLastUpdated(timestamp) {
+
+    const element =
+        document.getElementById(
+            "last-updated"
+        );
+
+
+    if (!timestamp) {
+
+        element.textContent =
+            "Last updated: unknown";
+
+        return;
+
+    }
+
+
+    const date =
+        new Date(timestamp);
+
+
+    const formatted =
+        new Intl.DateTimeFormat(
+            "en-GB",
+            {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                timeZoneName: "short"
+            }
+        ).format(date);
+
+
+    element.textContent =
+        "Last updated: " + formatted;
+
+}
+
+
+
+async function loadDashboard() {
+
+    const dashboard =
+        document.getElementById(
+            "dashboard"
+        );
+
+
+    try {
+
+        /*
+            Cache-busting prevents GitHub Pages /
+            the browser from showing yesterday's
+            os-support.json file.
+        */
+
+        const response =
+            await fetch(
+                "os-support.json?t=" +
+                Date.now()
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load os-support.json"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        let html = "";
+
+
+        for (
+            const productName
+            of DISPLAY_ORDER
+        ) {
+
+            if (!data[productName]) {
+                continue;
+            }
+
+
+            html +=
+                createCard(
+                    productName,
+                    data[productName]
+                );
+
+        }
+
+
+        dashboard.innerHTML = html;
+
+
+        displayLastUpdated(
+            data._last_updated
+        );
+
+
+    } catch (error) {
+
+        console.error(error);
+
+
+        dashboard.innerHTML = `
+
+            <div class="card">
+
+                <h2>
+                    Unable to load support data
+                </h2>
+
+                <div class="empty">
+                    Check that os-support.json
+                    exists and that the GitHub
+                    Actions workflow completed
+                    successfully.
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+
+loadDashboard();
 
 </script>
 
 
 </body>
-
 </html>
