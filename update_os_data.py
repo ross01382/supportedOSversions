@@ -45,7 +45,7 @@ def download_text(url):
 
 
 # ----------------------------------------------------------
-# endoflife.date
+# Get endoflife.date data
 # ----------------------------------------------------------
 
 def get_eol_data(product):
@@ -60,7 +60,7 @@ def get_eol_data(product):
 
 
 # ----------------------------------------------------------
-# Is a release still supported?
+# Is release supported?
 # ----------------------------------------------------------
 
 def is_supported(item):
@@ -122,12 +122,6 @@ def version_tuple(version):
 
 # ----------------------------------------------------------
 # Apple release history
-#
-# Used so macOS/iOS can show:
-#
-#   Supported version    Previous release
-#   26.6.2               26.6.1
-#
 # ----------------------------------------------------------
 
 def get_apple_release_history():
@@ -136,26 +130,18 @@ def get_apple_release_history():
         APPLE_SECURITY_URL
     )
 
-    # Remove HTML tags
     text = re.sub(
         r"<[^>]+>",
         " ",
         html
     )
 
-    # Decode common entities
     text = (
         text
         .replace("&nbsp;", " ")
         .replace("&#x27;", "'")
         .replace("&amp;", "&")
     )
-
-
-    # macOS examples:
-    #
-    # macOS Tahoe 26.6.2
-    # macOS Sequoia 15.7.9
 
     macos_versions = re.findall(
         r"macOS\s+[A-Za-z]+\s+"
@@ -164,22 +150,12 @@ def get_apple_release_history():
         flags=re.IGNORECASE
     )
 
-
-    # iOS examples:
-    #
-    # iOS 26.6.1
-    # iOS 18.7.10
-
     ios_versions = re.findall(
         r"\biOS\s+"
         r"(\d+(?:\.\d+){1,2})",
         text,
         flags=re.IGNORECASE
     )
-
-
-    # Remove duplicates,
-    # preserving original order
 
     macos_versions = list(
         dict.fromkeys(
@@ -193,7 +169,6 @@ def get_apple_release_history():
         )
     )
 
-
     print(
         "Apple macOS versions found:",
         macos_versions[:20]
@@ -204,7 +179,6 @@ def get_apple_release_history():
         ios_versions[:20]
     )
 
-
     return {
         "macOS": macos_versions,
         "iOS": ios_versions,
@@ -212,7 +186,7 @@ def get_apple_release_history():
 
 
 # ----------------------------------------------------------
-# Find previous Apple minor/security release
+# Previous Apple minor/security release
 # ----------------------------------------------------------
 
 def find_previous_apple_version(
@@ -223,23 +197,15 @@ def find_previous_apple_version(
     if not current_version:
         return None
 
-
     major = version_major(
         current_version
     )
 
-
     same_major = [
-
         version
-
         for version in history
-
-        if version_major(version)
-        == major
-
+        if version_major(version) == major
     ]
-
 
     same_major = sorted(
         set(same_major),
@@ -247,78 +213,47 @@ def find_previous_apple_version(
         reverse=True
     )
 
-
-    print(
-        f"Looking for previous version "
-        f"of {current_version}. "
-        f"Candidates: "
-        f"{same_major[:10]}"
-    )
-
-
     try:
 
-        current_index = (
-            same_major.index(
-                current_version
-            )
+        current_index = same_major.index(
+            current_version
         )
 
     except ValueError:
 
         return None
 
-
-    if (
-        current_index + 1
-        < len(same_major)
-    ):
+    if current_index + 1 < len(same_major):
 
         return same_major[
             current_index + 1
         ]
 
-
     return None
 
 
 # ----------------------------------------------------------
-# WINDOWS
+# Windows helper
 # ----------------------------------------------------------
-#
-# endoflife.date distinguishes releases using values such as:
-#
-# 11-26h1-e
-# 11-26h1-w
-# 11-24h2-e-lts
-# 10-21h2-e-lts
-# 10-1809-e-lts
-# 10-1607-e-lts
-#
-# We combine ordinary Windows 11 editions where appropriate
-# but keep LTSC/LTSB as separate rows.
-# ----------------------------------------------------------
+
+def windows_version_number(cycle):
+
+    match = re.search(
+        r"-(\d+h\d+|\d{4})",
+        cycle,
+        flags=re.IGNORECASE
+    )
+
+    if not match:
+        return None
+
+    return match.group(1).upper()
+
 
 def get_windows_entries(releases):
 
-    supported = []
+    supported_by_name = {}
     unsupported = []
-
-
-    # Used to avoid duplicate rows.
-    #
-    # For example:
-    #
-    # 11-25h2-e
-    # 11-25h2-w
-    #
-    # become:
-    #
-    # Windows 11 25H2
-
-    seen_supported = set()
-    seen_unsupported = set()
-
 
     for release in releases:
 
@@ -344,303 +279,292 @@ def get_windows_entries(releases):
             )
         )
 
-
-        # ------------------------------------------
         # Ignore IoT releases
-        # ------------------------------------------
-
         if "iot" in cycle:
             continue
 
-
-        entry = None
-
-
-        # ------------------------------------------
-        # WINDOWS 11 LTSC
-        # ------------------------------------------
-
-        match = re.match(
-            r"11-(\d+h\d+)-e-lts$",
+        version = windows_version_number(
             cycle
         )
 
-        if match:
+        if not version:
+            continue
 
-            release_version = (
-                match
-                .group(1)
-                .upper()
+        display_name = None
+
+        # --------------------------------------------------
+        # Windows 11 LTSC
+        # --------------------------------------------------
+
+        if (
+            cycle.startswith("11-")
+            and lts
+        ):
+
+            display_name = (
+                f"11 {version} LTSC"
             )
 
-            entry = {
-                "version":
-                    f"Windows 11 "
-                    f"{release_version} LTSC",
-
-                "latest":
-                    latest,
-
-                "eol":
-                    eol,
-            }
-
-
-        # ------------------------------------------
-        # NORMAL WINDOWS 11
-        # ------------------------------------------
+        # --------------------------------------------------
+        # Windows 11 normal editions
+        # --------------------------------------------------
 
         elif cycle.startswith("11-"):
 
-            match = re.match(
-                r"11-(\d+h\d+)",
-                cycle
-            )
+            # Enterprise / Education release
+            if "-e" in cycle:
 
-            if not match:
-                continue
+                display_name = (
+                    f"11 {version} "
+                    f"Enterprise/Education"
+                )
 
-            release_version = (
-                match
-                .group(1)
-                .upper()
-            )
+            # Home / Pro release
+            elif "-w" in cycle:
 
+                display_name = (
+                    f"11 {version}"
+                )
 
-            # We deliberately combine Home/Pro and
-            # Enterprise/Education where at least
-            # one edition is still supported.
-            #
-            # That keeps the dashboard compact.
+            else:
 
-            entry = {
-                "version":
-                    f"Windows 11 "
-                    f"{release_version}",
+                display_name = (
+                    f"11 {version}"
+                )
 
-                "latest":
-                    latest,
-
-                "eol":
-                    eol,
-            }
-
-
-        # ------------------------------------------
-        # WINDOWS 10 LTSC / LTSB
-        # ------------------------------------------
+        # --------------------------------------------------
+        # Windows 10 LTSC / LTSB
+        # --------------------------------------------------
 
         elif (
             cycle.startswith("10-")
             and lts
         ):
 
-            match = re.match(
-                r"10-"
-                r"([0-9]+h[0-9]+|\d{4})"
-                r"-e-lts",
-                cycle
-            )
-
-            if not match:
-                continue
-
-
-            release_version = (
-                match
-                .group(1)
-                .upper()
-            )
-
-
-            if release_version == "21H2":
+            if version == "21H2":
 
                 display_name = (
-                    "Windows 10 "
-                    "LTSC 2021"
+                    "10 LTSC 2021"
                 )
 
-            elif release_version == "1809":
+            elif version == "1809":
 
                 display_name = (
-                    "Windows 10 "
-                    "LTSC 2019"
+                    "10 LTSC 2019"
                 )
 
-            elif release_version == "1607":
+            elif version == "1607":
 
                 display_name = (
-                    "Windows 10 "
-                    "LTSB 2016"
+                    "10 LTSB 2016"
                 )
 
-            elif release_version == "1507":
+            elif version == "1507":
 
                 display_name = (
-                    "Windows 10 "
-                    "LTSB 2015"
+                    "10 LTSB 2015"
                 )
 
             else:
 
                 display_name = (
-                    "Windows 10 "
-                    f"{release_version} LTSC"
+                    f"10 {version} LTSC"
                 )
 
-
-            entry = {
-                "version":
-                    display_name,
-
-                "latest":
-                    latest,
-
-                "eol":
-                    eol,
-            }
-
-
-        # ------------------------------------------
-        # NORMAL WINDOWS 10
-        # ------------------------------------------
+        # --------------------------------------------------
+        # Normal Windows 10
+        # --------------------------------------------------
 
         elif cycle.startswith("10-"):
 
-            match = re.match(
-                r"10-"
-                r"([0-9]+h[0-9]+|\d{4})",
-                cycle
+            display_name = (
+                f"10 {version}"
             )
-
-            if not match:
-                continue
-
-
-            release_version = (
-                match
-                .group(1)
-                .upper()
-            )
-
-
-            entry = {
-                "version":
-                    f"Windows 10 "
-                    f"{release_version}",
-
-                "latest":
-                    latest,
-
-                "eol":
-                    eol,
-            }
-
 
         else:
 
             continue
 
-
-        # ------------------------------------------
-        # Supported
-        # ------------------------------------------
+        entry = {
+            "version": display_name,
+            "latest": latest,
+            "eol": eol,
+        }
 
         if is_supported(release):
 
-            key = (
-                entry["version"],
-                entry["latest"]
+            existing = supported_by_name.get(
+                display_name
             )
 
-            if key not in seen_supported:
+            if existing is None:
 
-                supported.append(
-                    entry
-                )
+                supported_by_name[
+                    display_name
+                ] = entry
 
-                seen_supported.add(
-                    key
-                )
+            else:
 
+                # Prefer whichever entry has a usable
+                # build number.
+                if (
+                    not existing.get("latest")
+                    and latest
+                ):
 
-        # ------------------------------------------
-        # Unsupported
-        # ------------------------------------------
+                    supported_by_name[
+                        display_name
+                    ] = entry
 
         else:
 
-            key = (
-                entry["version"],
-                entry["latest"]
+            unsupported.append(
+                entry
             )
 
-            if key not in seen_unsupported:
+    supported = list(
+        supported_by_name.values()
+    )
 
-                unsupported.append(
-                    entry
+    # ------------------------------------------------------
+    # Remove duplicate Windows 11 rows where:
+    #
+    # 11 25H2
+    # 11 25H2 Enterprise/Education
+    #
+    # are both supported.
+    #
+    # In that situation the simple row is sufficient.
+    #
+    # However if Home/Pro has expired and Enterprise/
+    # Education remains supported, keep the edition label.
+    # ------------------------------------------------------
+
+    simple_supported_versions = set()
+
+    for entry in supported:
+
+        match = re.fullmatch(
+            r"11 (\d+H\d+)",
+            entry["version"]
+        )
+
+        if match:
+
+            simple_supported_versions.add(
+                match.group(1)
+            )
+
+    cleaned_supported = []
+
+    for entry in supported:
+
+        match = re.fullmatch(
+            r"11 (\d+H\d+) Enterprise/Education",
+            entry["version"]
+        )
+
+        if (
+            match
+            and match.group(1)
+            in simple_supported_versions
+        ):
+
+            continue
+
+        cleaned_supported.append(
+            entry
+        )
+
+    supported = cleaned_supported
+
+    # ------------------------------------------------------
+    # Sort Windows rows
+    # ------------------------------------------------------
+
+    def windows_sort_key(entry):
+
+        name = entry["version"]
+
+        # Windows 11 first
+        if name.startswith("11 "):
+
+            version_match = re.search(
+                r"(\d+)H(\d+)",
+                name
+            )
+
+            if version_match:
+
+                return (
+                    0,
+                    -int(version_match.group(1)),
+                    -int(version_match.group(2)),
+                    0 if "LTSC" in name else 1
                 )
 
-                seen_unsupported.add(
-                    key
-                )
+            return (
+                0,
+                0,
+                0,
+                0
+            )
 
+        # Windows 10 LTSC/LTSB
+        if name.startswith("10 "):
+
+            if "2021" in name:
+                rank = 0
+
+            elif "2019" in name:
+                rank = 1
+
+            elif "2016" in name:
+                rank = 2
+
+            elif "2015" in name:
+                rank = 3
+
+            else:
+                rank = 4
+
+            return (
+                1,
+                rank,
+                0,
+                0
+            )
+
+        return (
+            9,
+            9,
+            9,
+            9
+        )
+
+    supported.sort(
+        key=windows_sort_key
+    )
 
     # ------------------------------------------------------
-    # Windows 11 editions can have different EOL dates.
-    #
-    # If one edition of a release is supported and another
-    # is unsupported, we don't want the same version shown
-    # in BOTH sections.
-    #
-    # Remove an unsupported row when that version already
-    # exists in supported.
-    # ------------------------------------------------------
-
-    supported_names = {
-        item["version"]
-        for item in supported
-    }
-
-
-    unsupported = [
-
-        item
-
-        for item in unsupported
-
-        if item["version"]
-        not in supported_names
-
-    ]
-
-
-    # ------------------------------------------------------
-    # We only want ONE previous unsupported Windows release.
-    #
-    # Prefer Windows 10 22H2 because it is the most useful
-    # "normal" previous release for this dashboard.
+    # Previous unsupported Windows release
     # ------------------------------------------------------
 
     preferred_previous = None
 
-
     for entry in unsupported:
 
-        if (
-            entry["version"]
-            == "Windows 10 22H2"
-        ):
+        if entry["version"] == "10 22H2":
 
             preferred_previous = entry
             break
 
+    if (
+        preferred_previous is None
+        and unsupported
+    ):
 
-    if preferred_previous is None:
-
-        if unsupported:
-            preferred_previous = unsupported[0]
-
+        preferred_previous = unsupported[0]
 
     previous_unsupported = []
 
@@ -649,7 +573,6 @@ def get_windows_entries(releases):
         previous_unsupported.append(
             preferred_previous
         )
-
 
     return (
         supported,
@@ -665,20 +588,17 @@ print(
     "Checking Apple security releases..."
 )
 
-
 try:
 
     apple_history = (
         get_apple_release_history()
     )
 
-
 except Exception as error:
 
     print(
-        "Warning: Unable to read "
-        "Apple security releases: "
-        f"{error}"
+        "Warning: Unable to read Apple security releases:",
+        error
     )
 
     apple_history = {
@@ -688,7 +608,7 @@ except Exception as error:
 
 
 # ----------------------------------------------------------
-# Output structure
+# Output
 # ----------------------------------------------------------
 
 result = {
@@ -711,66 +631,50 @@ result = {
 
 
 # ----------------------------------------------------------
-# Process each operating system
+# Process operating systems
 # ----------------------------------------------------------
 
-for display_name, product in (
-    PRODUCTS.items()
-):
+for display_name, product in PRODUCTS.items():
 
     print(
-        f"Checking "
-        f"{display_name}..."
+        f"Checking {display_name}..."
     )
-
 
     releases = get_eol_data(
         product
     )
 
-
     # ------------------------------------------------------
-    # Windows uses special handling
+    # Windows special handling
     # ------------------------------------------------------
 
     if display_name == "Windows":
 
-        (
-            supported,
-            unsupported
-        ) = get_windows_entries(
-            releases
+        supported, unsupported = (
+            get_windows_entries(
+                releases
+            )
         )
 
-
         result[display_name] = {
-
-            "supported":
-                supported,
-
-            "unsupported":
-                unsupported,
-
+            "supported": supported,
+            "unsupported": unsupported,
         }
-
 
         continue
 
-
     # ------------------------------------------------------
-    # Everything except Windows
+    # Other OS
     # ------------------------------------------------------
 
     supported = []
     unsupported = []
-
 
     for release in releases:
 
         latest = release.get(
             "latest"
         )
-
 
         entry = {
 
@@ -789,18 +693,13 @@ for display_name, product in (
 
         }
 
-
-        # --------------------------------------------------
-        # Apple:
-        # Add previous minor/security release
-        # --------------------------------------------------
-
+        # Apple previous minor/security release
         if display_name in (
             "macOS",
             "iOS"
         ):
 
-            previous = (
+            entry["previous"] = (
                 find_previous_apple_version(
                     latest,
                     apple_history[
@@ -808,11 +707,6 @@ for display_name, product in (
                     ]
                 )
             )
-
-            entry["previous"] = (
-                previous
-            )
-
 
         if is_supported(release):
 
@@ -826,31 +720,21 @@ for display_name, product in (
                 entry
             )
 
-
-    # ------------------------------------------------------
-    # Only keep the most recent unsupported major release
-    # ------------------------------------------------------
-
+    # Only show one previous unsupported release
     if unsupported:
 
         unsupported = [
             unsupported[0]
         ]
 
-
     result[display_name] = {
-
-        "supported":
-            supported,
-
-        "unsupported":
-            unsupported,
-
+        "supported": supported,
+        "unsupported": unsupported,
     }
 
 
 # ----------------------------------------------------------
-# Write JSON file
+# Write JSON
 # ----------------------------------------------------------
 
 with open(
