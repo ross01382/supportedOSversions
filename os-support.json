@@ -1,8 +1,62 @@
 {
-  "_last_updated": "2026-08-31T12:26:56.504137+00:00",
+  "_last_updated": "2026-08-31T12:47:13.298295+00:00",
   "_sources": {
-    "support": "https://endoflife.date",
-    "apple_history": "https://support.apple.com/en-us/100100"
+    "endoflife": "https://endoflife.date",
+    "apple": "https://support.apple.com/en-us/100100",
+    "chrome": "https://versionhistory.googleapis.com/v1/chrome/platforms/win/channels/stable/versions?order_by=version%20desc&page_size=200",
+    "edge": "https://edgeupdates.microsoft.com/api/products?view=enterprise",
+    "firefox": "https://product-details.mozilla.org/1.0/firefox_versions.json",
+    "firefox_history": "https://product-details.mozilla.org/1.0/firefox_history_stability_releases.json"
+  },
+  "_browsers": {
+    "Google Chrome": {
+      "supported": [
+        {
+          "version": "153.0.8010.12"
+        }
+      ],
+      "unsupported": [
+        {
+          "version": "152.0.7977.65"
+        }
+      ]
+    },
+    "Microsoft Edge": {
+      "supported": [
+        {
+          "version": "152.0.4191.53"
+        }
+      ],
+      "unsupported": [
+        {
+          "version": "151.0.4129.107"
+        }
+      ]
+    },
+    "Mozilla Firefox": {
+      "supported": [
+        {
+          "version": "154.0.1"
+        }
+      ],
+      "unsupported": [
+        {
+          "version": "153.1.0"
+        }
+      ]
+    },
+    "Apple Safari": {
+      "supported": [
+        {
+          "version": "26.6.1"
+        }
+      ],
+      "unsupported": [
+        {
+          "version": "18.6"
+        }
+      ]
+    }
   },
   "macOS": {
     "supported": [
@@ -104,51 +158,76 @@
   "Windows": {
     "supported": [
       {
-        "version": "11 26H1",
+        "version": "11-26h1-e",
+        "latest": "10.0.28000",
+        "eol": "2029-03-13"
+      },
+      {
+        "version": "11-26h1-w",
         "latest": "10.0.28000",
         "eol": "2028-03-14"
       },
       {
-        "version": "11 25H2",
+        "version": "11-25h2-e",
+        "latest": "10.0.26200",
+        "eol": "2028-10-10"
+      },
+      {
+        "version": "11-25h2-w",
         "latest": "10.0.26200",
         "eol": "2027-10-12"
       },
       {
-        "version": "11 24H2 LTSC",
+        "version": "11-24h2-iot-lts",
+        "latest": "10.0.26100",
+        "eol": "2034-10-10"
+      },
+      {
+        "version": "11-24h2-e-lts",
         "latest": "10.0.26100",
         "eol": "2029-10-09"
       },
       {
-        "version": "11 24H2",
+        "version": "11-24h2-e",
+        "latest": "10.0.26100",
+        "eol": "2027-10-12"
+      },
+      {
+        "version": "11-24h2-w",
         "latest": "10.0.26100",
         "eol": "2026-10-13"
       },
       {
-        "version": "11 23H2 Enterprise/Education",
+        "version": "11-23h2-e",
         "latest": "10.0.22631",
         "eol": "2026-11-10"
       },
       {
-        "version": "10 LTSC 2021",
-        "latest": "10.0.19044",
-        "eol": "2027-01-12"
-      },
-      {
-        "version": "10 LTSC 2019",
+        "version": "10-1809-e-lts",
         "latest": "10.0.17763",
         "eol": "2029-01-09"
       },
       {
-        "version": "10 LTSB 2016",
+        "version": "10-1607-e-lts",
         "latest": "10.0.14393",
         "eol": "2026-10-13"
+      },
+      {
+        "version": "10-21h2-iot-lts",
+        "latest": "10.0.19044",
+        "eol": "2032-01-13"
+      },
+      {
+        "version": "10-21h2-e-lts",
+        "latest": "10.0.19044",
+        "eol": "2027-01-12"
       }
     ],
     "unsupported": [
       {
-        "version": "10 22H2",
-        "latest": "10.0.19045",
-        "eol": "2025-10-14"
+        "version": "11-23h2-w",
+        "latest": "10.0.22631",
+        "eol": "2025-11-11"
       }
     ]
   },
@@ -177,9 +256,9 @@
     ],
     "unsupported": [
       {
-        "version": "23h2-ac",
-        "latest": "10.0.25398",
-        "eol": "2026-05-12"
+        "version": "2012-r2",
+        "latest": "6.3.9600",
+        "eol": "2023-10-10"
       }
     ]
   },
