@@ -91,33 +91,67 @@ def windows_sort_key(entry):
 
 def clean_windows_releases(releases):
     """
-    Keep only normal Windows feature releases
-    such as 25H2, 24H2, 23H2 etc.
+    Convert endoflife.date Windows entries such as:
 
-    This removes duplicate / edition-specific
-    entries that make the dashboard messy.
+    11-25h2-e
+    11-25h2-w
+    11-24h2-e
+    11-24h2-w
+
+    into one clean entry per Windows 11 release:
+
+    25H2
+    24H2
+    23H2
+
+    Prefer the Workstation/Home/Pro (-w) entry where available,
+    because that is the normal desktop Windows lifecycle.
     """
 
-    cleaned = []
-    seen_cycles = set()
+    grouped = {}
 
     for release in releases:
 
         cycle = str(
             release.get("cycle", "")
-        ).strip()
+        ).strip().lower()
 
-        if not re.match(
-            r"^\d{2}H[12]$",
+        match = re.match(
+            r"^11-(\d{2}h[12])-(w|e)$",
             cycle
+        )
+
+        if not match:
+            continue
+
+        friendly_version = (
+            match.group(1).upper()
+        )
+
+        edition = match.group(2)
+
+        # Prefer the normal workstation/Home/Pro entry (-w)
+        if (
+            friendly_version not in grouped
+            or edition == "w"
         ):
-            continue
 
-        if cycle in seen_cycles:
-            continue
+            cleaned_release = dict(
+                release
+            )
 
-        seen_cycles.add(cycle)
-        cleaned.append(release)
+            cleaned_release["cycle"] = (
+                friendly_version
+            )
+
+            grouped[
+                friendly_version
+            ] = cleaned_release
+
+
+    cleaned = list(
+        grouped.values()
+    )
 
     cleaned.sort(
         key=lambda release:
