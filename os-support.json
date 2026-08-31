@@ -1,5 +1,5 @@
 {
-  "_last_updated": "2026-08-31T09:33:37.205884+00:00",
+  "_last_updated": "2026-08-31T09:52:34.378140+00:00",
   "_sources": {
     "support": "https://endoflife.date",
     "apple_history": "https://support.apple.com/en-us/100100"
@@ -104,49 +104,49 @@
   "Windows": {
     "supported": [
       {
-        "version": "Windows 11 26H1",
+        "version": "11 26H1",
         "latest": "10.0.28000",
-        "eol": "2029-03-13"
+        "eol": "2028-03-14"
       },
       {
-        "version": "Windows 11 25H2",
+        "version": "11 25H2",
         "latest": "10.0.26200",
-        "eol": "2028-10-10"
+        "eol": "2027-10-12"
       },
       {
-        "version": "Windows 11 24H2 LTSC",
+        "version": "11 24H2 LTSC",
         "latest": "10.0.26100",
         "eol": "2029-10-09"
       },
       {
-        "version": "Windows 11 24H2",
+        "version": "11 24H2",
         "latest": "10.0.26100",
-        "eol": "2027-10-12"
+        "eol": "2026-10-13"
       },
       {
-        "version": "Windows 11 23H2",
+        "version": "11 23H2 Enterprise/Education",
         "latest": "10.0.22631",
         "eol": "2026-11-10"
       },
       {
-        "version": "Windows 10 LTSC 2021",
+        "version": "10 LTSC 2021",
         "latest": "10.0.19044",
         "eol": "2027-01-12"
       },
       {
-        "version": "Windows 10 LTSC 2019",
+        "version": "10 LTSC 2019",
         "latest": "10.0.17763",
         "eol": "2029-01-09"
       },
       {
-        "version": "Windows 10 LTSB 2016",
+        "version": "10 LTSB 2016",
         "latest": "10.0.14393",
         "eol": "2026-10-13"
       }
     ],
     "unsupported": [
       {
-        "version": "Windows 10 22H2",
+        "version": "10 22H2",
         "latest": "10.0.19045",
         "eol": "2025-10-14"
       }
