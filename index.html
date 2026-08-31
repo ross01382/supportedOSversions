@@ -71,6 +71,24 @@
                 36px;
         }
 
+        .section-title {
+
+            font-size:
+                22px;
+
+            margin:
+                0 0 18px;
+
+            font-weight:
+                600;
+        }
+
+        .browser-title {
+
+            margin-top:
+                42px;
+        }
+
         .grid {
 
             display: grid;
@@ -86,6 +104,15 @@
 
             align-items:
                 start;
+        }
+
+        .browser-grid {
+
+            grid-template-columns:
+                repeat(
+                    2,
+                    minmax(0, 1fr)
+                );
         }
 
         .card {
@@ -110,6 +137,12 @@
 
             min-height:
                 275px;
+        }
+
+        .browser-card {
+
+            min-height:
+                190px;
         }
 
         .card h2 {
@@ -347,6 +380,15 @@
                         minmax(0, 1fr)
                     );
             }
+
+            .browser-grid {
+
+                grid-template-columns:
+                    repeat(
+                        2,
+                        minmax(0, 1fr)
+                    );
+            }
         }
 
         /*
@@ -363,7 +405,8 @@
                     25px 12px;
             }
 
-            .grid {
+            .grid,
+            .browser-grid {
 
                 grid-template-columns:
                     1fr;
@@ -389,51 +432,97 @@
     </h1>
 
     <div class="subtitle">
-        Current supported operating system versions
+        Current supported operating system and browser versions
     </div>
 
+
+    <h2 class="section-title">
+        Operating system support
+    </h2>
+
     <div
-        id="grid"
+        id="osGrid"
         class="grid"
     >
 
         <div class="loading">
-            Loading support information...
+            Loading operating system support information...
         </div>
 
     </div>
 
-<footer>
 
-    <div>
-        Dynamically updated every 6 hours using
+    <h2 class="section-title browser-title">
+        Browser support
+    </h2>
 
-        <a
-            href="https://endoflife.date"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-            endoflife.date
-        </a>
+    <div
+        id="browserGrid"
+        class="grid browser-grid"
+    >
 
-        and
+        <div class="loading">
+            Loading browser support information...
+        </div>
 
-        <a
-            href="https://support.apple.com/en-us/100100"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-            Apple Security Releases
-        </a>
-
-        as sources.
     </div>
 
-    <div id="lastUpdated">
-        Last updated: loading...
-    </div>
 
-</footer>
+    <footer>
+
+        <div>
+            Dynamically updated every 6 hours using
+
+            <a
+                href="https://endoflife.date"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                endoflife.date
+            </a>,
+
+            <a
+                href="https://support.apple.com/en-us/100100"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Apple Security Releases
+            </a>,
+
+            <a
+                href="https://versionhistory.googleapis.com/v1/chrome/platforms/win/channels/stable/versions"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Google Chrome VersionHistory
+            </a>,
+
+            <a
+                href="https://edgeupdates.microsoft.com/api/products?view=enterprise"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Microsoft Edge Update API
+            </a>,
+
+            and
+
+            <a
+                href="https://product-details.mozilla.org/1.0/firefox_versions.json"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Mozilla Product Details
+            </a>
+
+            as sources.
+        </div>
+
+        <div id="lastUpdated">
+            Last updated: loading...
+        </div>
+
+    </footer>
 
 </div>
 
@@ -449,6 +538,16 @@ const DISPLAY_ORDER = [
     "Windows Server",
     "Ubuntu",
     "Red Hat Enterprise Linux"
+
+];
+
+
+const BROWSER_ORDER = [
+
+    "Google Chrome",
+    "Microsoft Edge",
+    "Mozilla Firefox",
+    "Apple Safari"
 
 ];
 
@@ -474,7 +573,8 @@ function createDot(
 function createRow(
     item,
     supported,
-    operatingSystem
+    operatingSystem,
+    isBrowser = false
 ) {
 
     const row =
@@ -498,6 +598,7 @@ function createRow(
         )
     );
 
+
     const version =
         document.createElement(
             "div"
@@ -506,27 +607,37 @@ function createRow(
     version.className =
         "version";
 
-/*
-    Apple:
-    show the current supported minor/security release
-    rather than only the major version.
-*/
 
-if (
-    (
-        operatingSystem === "macOS"
-        ||
-        operatingSystem === "iOS"
-    )
-    &&
-    supported
-) {
-    version.textContent =
-        item.latest ?? item.version ?? "";
-} else {
-    version.textContent =
-        item.version ?? "";
-}
+    /*
+        Apple operating systems:
+        show current supported minor/security
+        release instead of only major version.
+    */
+
+    if (
+        !isBrowser
+        &&
+        (
+            operatingSystem === "macOS"
+            ||
+            operatingSystem === "iOS"
+        )
+        &&
+        supported
+    ) {
+
+        version.textContent =
+            item.latest
+            ?? item.version
+            ?? "";
+
+    } else {
+
+        version.textContent =
+            item.version
+            ?? "";
+    }
+
 
     const latest =
         document.createElement(
@@ -536,12 +647,25 @@ if (
     latest.className =
         "latest";
 
+
     /*
-        Apple:
+        Browser cards don't need
+        a second value on the same row.
+    */
+
+    if (isBrowser) {
+
+        latest.textContent =
+            "";
+
+    }
+
+    /*
+        Apple OS:
         show previous minor/security release.
     */
 
-    if (
+    else if (
         (
             operatingSystem === "macOS"
             ||
@@ -566,8 +690,10 @@ if (
     } else {
 
         latest.textContent =
-            item.latest ?? "";
+            item.latest
+            ?? "";
     }
+
 
     row.appendChild(
         dotHolder
@@ -608,6 +734,7 @@ function createCard(
         );
     }
 
+
     const title =
         document.createElement(
             "h2"
@@ -620,6 +747,7 @@ function createCard(
         title
     );
 
+
     const headings =
         document.createElement(
             "div"
@@ -628,10 +756,12 @@ function createCard(
     headings.className =
         "headings";
 
+
     const blank =
         document.createElement(
             "div"
         );
+
 
     const left =
         document.createElement(
@@ -641,6 +771,7 @@ function createCard(
     left.textContent =
         "Supported version";
 
+
     const right =
         document.createElement(
             "div"
@@ -648,6 +779,7 @@ function createCard(
 
     right.className =
         "right";
+
 
     if (
         operatingSystem === "macOS"
@@ -663,6 +795,7 @@ function createCard(
         right.textContent =
             "Latest";
     }
+
 
     headings.appendChild(
         blank
@@ -680,6 +813,7 @@ function createCard(
         headings
     );
 
+
     const supported =
         data.supported || [];
 
@@ -690,11 +824,13 @@ function createCard(
                 createRow(
                     item,
                     true,
-                    operatingSystem
+                    operatingSystem,
+                    false
                 )
             );
         }
     );
+
 
     const unsupported =
         data.unsupported || [];
@@ -718,6 +854,7 @@ function createCard(
             heading
         );
 
+
         unsupported.forEach(
             function(item) {
 
@@ -725,12 +862,148 @@ function createCard(
                     createRow(
                         item,
                         false,
-                        operatingSystem
+                        operatingSystem,
+                        false
                     )
                 );
             }
         );
     }
+
+
+    return card;
+}
+
+
+function createBrowserCard(
+    browser,
+    data
+) {
+
+    const card =
+        document.createElement(
+            "section"
+        );
+
+    card.className =
+        "card browser-card";
+
+
+    const title =
+        document.createElement(
+            "h2"
+        );
+
+    title.textContent =
+        browser;
+
+    card.appendChild(
+        title
+    );
+
+
+    const headings =
+        document.createElement(
+            "div"
+        );
+
+    headings.className =
+        "headings";
+
+
+    const blank =
+        document.createElement(
+            "div"
+        );
+
+
+    const left =
+        document.createElement(
+            "div"
+        );
+
+    left.textContent =
+        "Supported version";
+
+
+    const right =
+        document.createElement(
+            "div"
+        );
+
+    headings.appendChild(
+        blank
+    );
+
+    headings.appendChild(
+        left
+    );
+
+    headings.appendChild(
+        right
+    );
+
+    card.appendChild(
+        headings
+    );
+
+
+    const supported =
+        data.supported || [];
+
+    supported.forEach(
+        function(item) {
+
+            card.appendChild(
+                createRow(
+                    item,
+                    true,
+                    browser,
+                    true
+                )
+            );
+        }
+    );
+
+
+    const unsupported =
+        data.unsupported || [];
+
+    if (
+        unsupported.length > 0
+    ) {
+
+        const heading =
+            document.createElement(
+                "div"
+            );
+
+        heading.className =
+            "unsupported-title";
+
+        heading.textContent =
+            "Previous unsupported";
+
+        card.appendChild(
+            heading
+        );
+
+
+        unsupported.forEach(
+            function(item) {
+
+                card.appendChild(
+                    createRow(
+                        item,
+                        false,
+                        browser,
+                        true
+                    )
+                );
+            }
+        );
+    }
+
 
     return card;
 }
@@ -788,10 +1061,16 @@ function formatUpdatedTime(
 
 async function loadData() {
 
-    const grid =
+    const osGrid =
         document.getElementById(
-            "grid"
+            "osGrid"
         );
+
+    const browserGrid =
+        document.getElementById(
+            "browserGrid"
+        );
+
 
     try {
 
@@ -805,6 +1084,7 @@ async function loadData() {
                 }
             );
 
+
         if (!response.ok) {
 
             throw new Error(
@@ -813,11 +1093,17 @@ async function loadData() {
             );
         }
 
+
         const data =
             await response.json();
 
-        grid.innerHTML =
+
+        osGrid.innerHTML =
             "";
+
+        browserGrid.innerHTML =
+            "";
+
 
         DISPLAY_ORDER.forEach(
             function(
@@ -830,7 +1116,7 @@ async function loadData() {
                     ]
                 ) {
 
-                    grid.appendChild(
+                    osGrid.appendChild(
                         createCard(
                             operatingSystem,
                             data[
@@ -842,10 +1128,53 @@ async function loadData() {
             }
         );
 
+
+        const browsers =
+            data._browsers
+            || {};
+
+
+        BROWSER_ORDER.forEach(
+            function(
+                browser
+            ) {
+
+                if (
+                    browsers[
+                        browser
+                    ]
+                ) {
+
+                    browserGrid.appendChild(
+                        createBrowserCard(
+                            browser,
+                            browsers[
+                                browser
+                            ]
+                        )
+                    );
+                }
+            }
+        );
+
+
+        if (
+            browserGrid.children.length
+            === 0
+        ) {
+
+            browserGrid.innerHTML =
+                '<div class="error">'
+                + 'Unable to load browser support data.'
+                + '</div>';
+        }
+
+
         const updated =
             document.getElementById(
                 "lastUpdated"
             );
+
 
         updated.textContent =
             "Last updated: "
@@ -853,28 +1182,50 @@ async function loadData() {
                 data._last_updated
             );
 
+
     } catch (error) {
 
         console.error(
             error
         );
 
-        grid.innerHTML =
+
+        osGrid.innerHTML =
             "";
 
-        const message =
+        browserGrid.innerHTML =
+            "";
+
+
+        const osMessage =
             document.createElement(
                 "div"
             );
 
-        message.className =
+        osMessage.className =
             "error";
 
-        message.textContent =
+        osMessage.textContent =
             "Unable to load operating system support data.";
 
-        grid.appendChild(
-            message
+        osGrid.appendChild(
+            osMessage
+        );
+
+
+        const browserMessage =
+            document.createElement(
+                "div"
+            );
+
+        browserMessage.className =
+            "error";
+
+        browserMessage.textContent =
+            "Unable to load browser support data.";
+
+        browserGrid.appendChild(
+            browserMessage
         );
     }
 }
