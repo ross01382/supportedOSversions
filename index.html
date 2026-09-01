@@ -21,9 +21,7 @@
         }
 
         body {
-
             margin: 0;
-
             padding: 40px 20px;
 
             font-family:
@@ -31,66 +29,39 @@
                 Helvetica,
                 sans-serif;
 
-            background:
-                #f5f5f7;
-
-            color:
-                #111;
+            background: #f5f5f7;
+            color: #111;
         }
 
         .page {
-
             max-width: 1050px;
-
-            margin:
-                0 auto;
+            margin: 0 auto;
         }
 
         h1 {
-
             text-align: center;
-
-            margin:
-                0 0 10px;
-
-            font-size:
-                30px;
+            margin: 0 0 10px;
+            font-size: 30px;
         }
 
         .subtitle {
-
             text-align: center;
-
-            color:
-                #555;
-
-            font-size:
-                14px;
-
-            margin-bottom:
-                36px;
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 36px;
         }
 
         .section-title {
-
-            font-size:
-                22px;
-
-            margin:
-                0 0 18px;
-
-            font-weight:
-                600;
+            font-size: 22px;
+            margin: 0 0 18px;
+            font-weight: 600;
         }
 
         .browser-title {
-
-            margin-top:
-                42px;
+            margin-top: 42px;
         }
 
         .grid {
-
             display: grid;
 
             grid-template-columns:
@@ -99,15 +70,11 @@
                     minmax(0, 1fr)
                 );
 
-            gap:
-                18px;
-
-            align-items:
-                start;
+            gap: 18px;
+            align-items: start;
         }
 
         .browser-grid {
-
             grid-template-columns:
                 repeat(
                     2,
@@ -116,15 +83,9 @@
         }
 
         .card {
-
-            background:
-                white;
-
-            border-radius:
-                12px;
-
-            padding:
-                22px;
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
 
             box-shadow:
                 0 2px 8px
@@ -135,27 +96,23 @@
                     0.08
                 );
 
-            min-height:
-                275px;
+            min-height: 275px;
         }
 
         .browser-card {
-
-            min-height:
-                190px;
+            min-height: 190px;
         }
 
         .card h2 {
-
-            margin:
-                0 0 22px;
-
-            font-size:
-                20px;
+            margin: 0 0 22px;
+            font-size: 20px;
         }
 
-        .headings {
+        /*
+            Normal OS/browser headings
+        */
 
+        .headings {
             display: grid;
 
             grid-template-columns:
@@ -163,24 +120,20 @@
                 minmax(0, 1fr)
                 90px;
 
-            font-size:
-                10px;
-
-            color:
-                #666;
-
-            margin-bottom:
-                5px;
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 5px;
         }
 
         .headings .right {
-
-            text-align:
-                right;
+            text-align: right;
         }
 
-        .row {
+        /*
+            Normal OS/browser rows
+        */
 
+        .row {
             display: grid;
 
             grid-template-columns:
@@ -188,158 +141,139 @@
                 minmax(0, 1fr)
                 90px;
 
-            align-items:
-                center;
-
-            min-height:
-                38px;
+            align-items: center;
+            min-height: 38px;
 
             border-bottom:
                 1px solid #e5e5e5;
 
-            font-size:
-                13px;
+            font-size: 13px;
         }
 
         .row:last-child {
-
-            border-bottom:
-                none;
+            border-bottom: none;
         }
 
         .version {
-
-            font-weight:
-                600;
-
-            min-width:
-                0;
-
-            padding-right:
-                8px;
-
-            line-height:
-                1.2;
+            font-weight: 600;
+            min-width: 0;
+            padding-right: 8px;
+            line-height: 1.2;
         }
 
         .latest {
-
-            text-align:
-                right;
-
-            color:
-                #444;
-
-            white-space:
-                nowrap;
-
-            font-size:
-                12px;
+            text-align: right;
+            color: #444;
+            white-space: nowrap;
+            font-size: 12px;
         }
 
+        /*
+            Windows support end date
+        */
+
+        .support-end {
+            text-align: right;
+            color: #444;
+            white-space: nowrap;
+            font-size: 12px;
+        }
+
+        /*
+            Windows has four columns:
+
+            dot
+            version
+            latest
+            support end date
+        */
+
+        .windows-card .headings,
+        .windows-card .row {
+
+            grid-template-columns:
+                18px
+                minmax(0, 1fr)
+                82px
+                94px;
+        }
+
+        /*
+            Add a little space between
+            Latest and Support end date
+        */
+
+        .windows-card .latest {
+            padding-right: 10px;
+        }
+
+        .windows-card .support-end {
+            padding-left: 4px;
+        }
+
+        .windows-card .end-heading {
+            text-align: right;
+        }
+
+        /*
+            Status dots
+        */
+
         .dot {
+            width: 8px;
+            height: 8px;
 
-            width:
-                8px;
+            border-radius: 50%;
 
-            height:
-                8px;
-
-            border-radius:
-                50%;
-
-            display:
-                inline-block;
+            display: inline-block;
         }
 
         .supported-dot {
-
-            background:
-                #2dbf61;
+            background: #2dbf61;
         }
 
         .unsupported-dot {
-
-            background:
-                #ff3b30;
+            background: #ff3b30;
         }
 
         .unsupported-title {
+            margin-top: 19px;
+            margin-bottom: 5px;
 
-            margin-top:
-                19px;
+            font-size: 10px;
+            color: #666;
 
-            margin-bottom:
-                5px;
-
-            font-size:
-                10px;
-
-            color:
-                #666;
-
-            text-transform:
-                uppercase;
-
-            letter-spacing:
-                0.2px;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
         }
 
         .unsupported-row {
-
-            border-bottom:
-                none;
+            border-bottom: none;
         }
 
         footer {
-
-            text-align:
-                center;
-
-            margin-top:
-                40px;
-
-            color:
-                #666;
-
-            font-size:
-                11px;
-
-            line-height:
-                1.8;
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 11px;
+            line-height: 1.8;
         }
 
         footer a {
-
-            color:
-                #444;
-
-            text-decoration:
-                underline;
+            color: #444;
+            text-decoration: underline;
         }
 
         .loading {
-
-            text-align:
-                center;
-
-            grid-column:
-                1 / -1;
-
-            color:
-                #666;
+            text-align: center;
+            grid-column: 1 / -1;
+            color: #666;
         }
 
         .error {
-
-            text-align:
-                center;
-
-            grid-column:
-                1 / -1;
-
-            color:
-                #c00;
+            text-align: center;
+            grid-column: 1 / -1;
+            color: #c00;
         }
 
         /*
@@ -348,9 +282,7 @@
         */
 
         .windows-card {
-
-            min-height:
-                0;
+            min-height: 0;
         }
 
         /*
@@ -359,9 +291,7 @@
         */
 
         .windows-card .version {
-
-            font-size:
-                12px;
+            font-size: 12px;
         }
 
         /*
@@ -400,22 +330,36 @@
         ) {
 
             body {
-
-                padding:
-                    25px 12px;
+                padding: 25px 12px;
             }
 
             .grid,
             .browser-grid {
-
-                grid-template-columns:
-                    1fr;
+                grid-template-columns: 1fr;
             }
 
             h1 {
+                font-size: 25px;
+            }
 
-                font-size:
-                    25px;
+            /*
+                Give Windows a little more
+                breathing room on phones.
+            */
+
+            .windows-card .headings,
+            .windows-card .row {
+
+                grid-template-columns:
+                    18px
+                    minmax(0, 1fr)
+                    80px
+                    90px;
+            }
+
+            .windows-card {
+                padding-left: 16px;
+                padding-right: 16px;
             }
         }
 
@@ -471,6 +415,7 @@
     <footer>
 
         <div>
+
             Dynamically updated every 6 hours using
 
             <a
@@ -516,6 +461,7 @@
             </a>
 
             as sources.
+
         </div>
 
         <div id="lastUpdated">
@@ -552,6 +498,10 @@ const BROWSER_ORDER = [
 ];
 
 
+/*
+    Create green/red status dot
+*/
+
 function createDot(
     supported
 ) {
@@ -570,6 +520,69 @@ function createDot(
 }
 
 
+/*
+    Convert dates from:
+
+        2028-10-10
+
+    to UK format:
+
+        10/10/2028
+
+    Parsing the components manually avoids
+    timezone conversion changing the date.
+*/
+
+function formatSupportEndDate(
+    value
+) {
+
+    if (
+        !value
+        ||
+        value === false
+    ) {
+
+        return "—";
+    }
+
+
+    const match =
+        String(value).match(
+            /^(\d{4})-(\d{2})-(\d{2})$/
+        );
+
+
+    if (!match) {
+
+        return String(value);
+    }
+
+
+    const year =
+        match[1];
+
+    const month =
+        match[2];
+
+    const day =
+        match[3];
+
+
+    return (
+        day
+        + "/"
+        + month
+        + "/"
+        + year
+    );
+}
+
+
+/*
+    Create OS/browser row
+*/
+
 function createRow(
     item,
     supported,
@@ -586,6 +599,7 @@ function createRow(
         supported
             ? "row"
             : "row unsupported-row";
+
 
     const dotHolder =
         document.createElement(
@@ -707,9 +721,44 @@ function createRow(
         latest
     );
 
+
+    /*
+        Windows only:
+        add support end date as fourth column.
+    */
+
+    if (
+        !isBrowser
+        &&
+        operatingSystem === "Windows"
+    ) {
+
+        const supportEnd =
+            document.createElement(
+                "div"
+            );
+
+        supportEnd.className =
+            "support-end";
+
+        supportEnd.textContent =
+            formatSupportEndDate(
+                item.eol
+            );
+
+        row.appendChild(
+            supportEnd
+        );
+    }
+
+
     return row;
 }
 
+
+/*
+    Create operating system card
+*/
 
 function createCard(
     operatingSystem,
@@ -723,6 +772,7 @@ function createCard(
 
     card.className =
         "card";
+
 
     if (
         operatingSystem
@@ -747,6 +797,10 @@ function createCard(
         title
     );
 
+
+    /*
+        Column headings
+    */
 
     const headings =
         document.createElement(
@@ -809,13 +863,44 @@ function createCard(
         right
     );
 
+
+    /*
+        Windows gets a fourth heading.
+    */
+
+    if (
+        operatingSystem === "Windows"
+    ) {
+
+        const endHeading =
+            document.createElement(
+                "div"
+            );
+
+        endHeading.className =
+            "end-heading";
+
+        endHeading.textContent =
+            "Support end date";
+
+        headings.appendChild(
+            endHeading
+        );
+    }
+
+
     card.appendChild(
         headings
     );
 
 
+    /*
+        Supported versions
+    */
+
     const supported =
         data.supported || [];
+
 
     supported.forEach(
         function(item) {
@@ -832,8 +917,13 @@ function createCard(
     );
 
 
+    /*
+        Previous unsupported version
+    */
+
     const unsupported =
         data.unsupported || [];
+
 
     if (
         unsupported.length > 0
@@ -874,6 +964,10 @@ function createCard(
     return card;
 }
 
+
+/*
+    Create browser card
+*/
 
 function createBrowserCard(
     browser,
@@ -931,6 +1025,7 @@ function createBrowserCard(
             "div"
         );
 
+
     headings.appendChild(
         blank
     );
@@ -943,6 +1038,7 @@ function createBrowserCard(
         right
     );
 
+
     card.appendChild(
         headings
     );
@@ -950,6 +1046,7 @@ function createBrowserCard(
 
     const supported =
         data.supported || [];
+
 
     supported.forEach(
         function(item) {
@@ -968,6 +1065,7 @@ function createBrowserCard(
 
     const unsupported =
         data.unsupported || [];
+
 
     if (
         unsupported.length > 0
@@ -1009,6 +1107,10 @@ function createBrowserCard(
 }
 
 
+/*
+    Format last updated timestamp.
+*/
+
 function formatUpdatedTime(
     value
 ) {
@@ -1017,10 +1119,12 @@ function formatUpdatedTime(
         return "Unknown";
     }
 
+
     const date =
         new Date(
             value
         );
+
 
     if (
         Number.isNaN(
@@ -1031,9 +1135,11 @@ function formatUpdatedTime(
         return value;
     }
 
+
     return date.toLocaleString(
         "en-GB",
         {
+
             day:
                 "2-digit",
 
@@ -1058,6 +1164,10 @@ function formatUpdatedTime(
     );
 }
 
+
+/*
+    Load generated JSON data
+*/
 
 async function loadData() {
 
@@ -1105,6 +1215,10 @@ async function loadData() {
             "";
 
 
+        /*
+            Operating systems
+        */
+
         DISPLAY_ORDER.forEach(
             function(
                 operatingSystem
@@ -1128,6 +1242,10 @@ async function loadData() {
             }
         );
 
+
+        /*
+            Browsers
+        */
 
         const browsers =
             data._browsers
@@ -1169,6 +1287,10 @@ async function loadData() {
                 + '</div>';
         }
 
+
+        /*
+            Last updated time
+        */
 
         const updated =
             document.getElementById(
