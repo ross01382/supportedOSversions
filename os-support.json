@@ -1,5 +1,5 @@
 {
-  "_last_updated": "2026-09-01T12:09:49.782477+00:00",
+  "_last_updated": "2026-09-01T12:32:05.846780+00:00",
   "_sources": {
     "endoflife": "https://endoflife.date",
     "apple": "https://support.apple.com/en-us/100100",
@@ -37,12 +37,12 @@
     "Mozilla Firefox": {
       "supported": [
         {
-          "version": "154.0.1"
+          "version": "155.0"
         }
       ],
       "unsupported": [
         {
-          "version": "153.1.0"
+          "version": "154.0.1"
         }
       ]
     },
