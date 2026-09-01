@@ -25,7 +25,12 @@ APPLE_SECURITY_URL = (
     "https://support.apple.com/en-us/100100"
 )
 
-CHROME_VERSION_URL = (
+CHROME_CURRENT_URL = (
+    "https://googlechromelabs.github.io/"
+    "chrome-for-testing/last-known-good-versions.json"
+)
+
+CHROME_HISTORY_URL = (
     "https://versionhistory.googleapis.com/"
     "v1/chrome/platforms/win/channels/stable/versions"
     "?order_by=version%20desc&page_size=200"
@@ -444,8 +449,53 @@ def get_chrome_data():
     )
 
 
-    data = download_json(
-        CHROME_VERSION_URL
+    # --------------------------------------------------------
+    # Current mainstream Stable
+    # --------------------------------------------------------
+    #
+    # Do NOT determine the current Chrome release by taking
+    # the numerically highest version from VersionHistory.
+    # During Google's Early Stable rollout, the next major can
+    # appear in VersionHistory before it is the normal Stable
+    # release for general users.
+    #
+    # Chrome for Testing's last-known-good feed exposes the
+    # channels separately, so its Stable entry gives us the
+    # current mainstream Stable version while Beta/Dev/Canary
+    # remain separate.
+
+    current_data = download_json(
+        CHROME_CURRENT_URL
+    )
+
+
+    current = (
+        current_data
+        .get("channels", {})
+        .get("Stable", {})
+        .get("version")
+    )
+
+
+    if not current:
+
+        raise RuntimeError(
+            "Chrome Stable version not found "
+            "in last-known-good feed"
+        )
+
+
+    # --------------------------------------------------------
+    # Historical Stable versions
+    # --------------------------------------------------------
+    #
+    # We still use VersionHistory for the previous major, but
+    # crucially we anchor the calculation to the Stable version
+    # above. This means an Early Stable/Beta next-major release
+    # cannot accidentally become the supported version.
+
+    history_data = download_json(
+        CHROME_HISTORY_URL
     )
 
 
@@ -454,7 +504,7 @@ def get_chrome_data():
         item.get("version")
 
         for item
-        in data.get(
+        in history_data.get(
             "versions",
             []
         )
@@ -473,11 +523,8 @@ def get_chrome_data():
     if not versions:
 
         raise RuntimeError(
-            "No Chrome Stable versions found"
+            "No Chrome Stable history found"
         )
-
-
-    current = versions[0]
 
 
     previous = get_previous_major_release(
@@ -487,7 +534,7 @@ def get_chrome_data():
 
 
     print(
-        "Chrome current:",
+        "Chrome current mainstream Stable:",
         current
     )
 
@@ -883,7 +930,10 @@ result = {
             APPLE_SECURITY_URL,
 
         "chrome":
-            CHROME_VERSION_URL,
+            CHROME_CURRENT_URL,
+
+        "chrome_history":
+            CHROME_HISTORY_URL,
 
         "edge":
             EDGE_VERSION_URL,
