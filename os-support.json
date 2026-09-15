@@ -1,5 +1,5 @@
 {
-  "_last_updated": "2026-09-15T06:34:08.484466+00:00",
+  "_last_updated": "2026-09-15T12:32:08.091132+00:00",
   "_sources": {
     "endoflife": "https://endoflife.date",
     "apple": "https://support.apple.com/en-us/100100",
@@ -62,6 +62,12 @@
   "macOS": {
     "supported": [
       {
+        "version": "27",
+        "latest": "27",
+        "eol": false,
+        "previous": null
+      },
+      {
         "version": "26",
         "latest": "26.7",
         "eol": false,
@@ -91,6 +97,12 @@
   },
   "iOS": {
     "supported": [
+      {
+        "version": "27",
+        "latest": "27",
+        "eol": false,
+        "previous": null
+      },
       {
         "version": "26",
         "latest": "26.7",
