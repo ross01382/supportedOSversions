@@ -1,5 +1,5 @@
 {
-  "_last_updated": "2026-09-17T06:33:21.955081+00:00",
+  "_last_updated": "2026-09-17T12:32:19.203033+00:00",
   "_sources": {
     "endoflife": "https://endoflife.date",
     "apple": "https://support.apple.com/en-us/100100",
@@ -78,20 +78,14 @@
         "latest": "15.8",
         "eol": false,
         "previous": "15.7.9"
-      },
-      {
-        "version": "14",
-        "latest": "14.8.9",
-        "eol": false,
-        "previous": "14.8.8"
       }
     ],
     "unsupported": [
       {
-        "version": "13",
-        "latest": "13.7.8",
-        "eol": "2025-09-15",
-        "previous": "13.7.7"
+        "version": "14",
+        "latest": "14.8.9",
+        "eol": "2026-09-14",
+        "previous": "14.8.8"
       }
     ]
   },
