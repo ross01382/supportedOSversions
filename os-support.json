@@ -1,5 +1,5 @@
 {
-  "_last_updated": "2026-09-24T18:30:23.510753+00:00",
+  "_last_updated": "2026-09-25T00:34:39.678349+00:00",
   "_sources": {
     "endoflife": "https://endoflife.date",
     "apple": "https://support.apple.com/en-us/100100",
@@ -25,12 +25,12 @@
     "Microsoft Edge": {
       "supported": [
         {
-          "version": "153.0.4234.48"
+          "version": "154.0.4258.37"
         }
       ],
       "unsupported": [
         {
-          "version": "152.0.4191.96"
+          "version": "153.0.4234.48"
         }
       ]
     },
