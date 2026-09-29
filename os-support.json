@@ -1,5 +1,5 @@
 {
-  "_last_updated": "2026-09-28T18:32:13.035287+00:00",
+  "_last_updated": "2026-09-29T00:34:55.823609+00:00",
   "_sources": {
     "endoflife": "https://endoflife.date",
     "apple": "https://support.apple.com/en-us/100100",
@@ -63,21 +63,21 @@
     "supported": [
       {
         "version": "27",
-        "latest": "27.0",
+        "latest": "27.0.1",
         "eol": false,
         "previous": null
       },
       {
         "version": "26",
-        "latest": "26.7",
+        "latest": "26.7.1",
         "eol": false,
-        "previous": "26.6.2"
+        "previous": "26.7"
       },
       {
         "version": "15",
-        "latest": "15.8",
+        "latest": "15.8.1",
         "eol": false,
-        "previous": "15.7.9"
+        "previous": "15.8"
       }
     ],
     "unsupported": [
@@ -93,15 +93,15 @@
     "supported": [
       {
         "version": "27",
-        "latest": "27.0",
+        "latest": "27.0.1",
         "eol": false,
         "previous": null
       },
       {
         "version": "26",
-        "latest": "26.7",
+        "latest": "26.7.1",
         "eol": false,
-        "previous": "26.6.2"
+        "previous": "26.7"
       },
       {
         "version": "18",
