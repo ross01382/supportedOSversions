@@ -1,5 +1,5 @@
 {
-  "_last_updated": "2026-09-30T05:32:33.882468+00:00",
+  "_last_updated": "2026-09-30T12:34:22.716443+00:00",
   "_sources": {
     "endoflife": "https://endoflife.date",
     "apple": "https://support.apple.com/en-us/100100",
@@ -165,8 +165,18 @@
   "Windows": {
     "supported": [
       {
-        "version": "11-26h1-e",
+        "version": "11-26h2-e",
+        "latest": "10.0.26300",
+        "eol": "2029-10-09"
+      },
+      {
+        "version": "11-26h2-w",
         "latest": "10.0.28000",
+        "eol": "2028-10-10"
+      },
+      {
+        "version": "11-26h1-e",
+        "latest": "10.0.26300",
         "eol": "2029-03-13"
       },
       {
