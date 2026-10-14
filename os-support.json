@@ -1,5 +1,5 @@
 {
-  "_last_updated": "2026-10-13T22:44:37.927770+00:00",
+  "_last_updated": "2026-10-14T04:53:28.831673+00:00",
   "_sources": {
     "endoflife": "https://endoflife.date",
     "apple": "https://support.apple.com/en-us/100100",
@@ -13,7 +13,7 @@
     "Google Chrome": {
       "supported": [
         {
-          "version": "155.0.8059.39"
+          "version": "155.0.8059.79"
         }
       ],
       "unsupported": [
@@ -210,11 +210,6 @@
         "eol": "2027-10-12"
       },
       {
-        "version": "11-24h2-w",
-        "latest": "10.0.26100",
-        "eol": "2026-10-13"
-      },
-      {
         "version": "11-23h2-e",
         "latest": "10.0.22631",
         "eol": "2026-11-10"
@@ -223,11 +218,6 @@
         "version": "10-1809-e-lts",
         "latest": "10.0.17763",
         "eol": "2029-01-09"
-      },
-      {
-        "version": "10-1607-e-lts",
-        "latest": "10.0.14393",
-        "eol": "2026-10-13"
       },
       {
         "version": "10-21h2-iot-lts",
@@ -242,9 +232,9 @@
     ],
     "unsupported": [
       {
-        "version": "11-23h2-w",
-        "latest": "10.0.22631",
-        "eol": "2025-11-11"
+        "version": "11-24h2-w",
+        "latest": "10.0.26100",
+        "eol": "2026-10-13"
       }
     ]
   },
