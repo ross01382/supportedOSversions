@@ -1,5 +1,5 @@
 {
-  "_last_updated": "2026-10-23T11:38:52.960574+00:00",
+  "_last_updated": "2026-10-23T17:06:48.994488+00:00",
   "_sources": {
     "endoflife": "https://endoflife.date",
     "apple": "https://support.apple.com/en-us/100100",
@@ -93,9 +93,9 @@
     "supported": [
       {
         "version": "27",
-        "latest": "27.0.1",
+        "latest": "27.1",
         "eol": false,
-        "previous": null
+        "previous": "27.0.1"
       },
       {
         "version": "26",
